@@ -1,0 +1,241 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+/* Landscape phones and other very short viewports (e.g. 844×390) */
+@custom-variant short (@media (max-height: 520px) and (orientation: landscape));
+/* Short portrait phones (iPhone SE, 360×740 Androids) */
+@custom-variant compact (@media (max-height: 740px));
+/* Very short portrait phones (iPhone SE 1st gen, 320×568) */
+@custom-variant tiny (@media (max-height: 640px) and (orientation: portrait));
+
+/* ---------------------------------------------------------------
+   LongRak design tokens (approximated from the master logo; see context.md §2)
+---------------------------------------------------------------- */
+@theme {
+  --color-navy-950: #0a1a30;
+  --color-navy-900: #132d50;
+  --color-navy-800: #1b3a60;
+  --color-navy-700: #254669;
+  --color-navy-500: #4a6a8f;
+  --color-coral-500: #f36f82;
+  --color-coral-400: #f58c9a;
+  --color-peach-400: #ffa87e;
+  --color-gold-600: #b98a32;
+  --color-gold-500: #daa442;
+  --color-gold-300: #ebcb86;
+  --color-paper: #fffcfa;
+  --color-paper-2: #f8f1ea;
+  --color-slate-100: #f2f5f9;
+  --color-success: #21845c;
+  --color-warning: #ca8a04;
+  --color-danger: #c24143;
+
+  /* One family throughout (the navbar face); hierarchy comes from weight + size */
+  --font-display: "IBM Plex Sans Thai", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans Thai", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    /* nothing animating in from the side may widen the page (mobile browsers would zoom out);
+       clip, unlike hidden, keeps position: sticky working */
+    overflow-x: clip;
+    background: var(--color-paper);
+    color: var(--color-navy-900);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    font-family: var(--font-sans);
+    overflow-x: clip;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--color-coral-500) 30%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-gold-500);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+em {
+  font-style: normal;
+}
+
+@layer components {
+  /* Gold foil gradient text */
+  .text-gold {
+    background: linear-gradient(100deg, #9c7026 0%, #daa442 30%, #f2d99b 50%, #daa442 70%, #9c7026 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: foil 8s linear infinite;
+  }
+  /* Coral → peach, the heart of the logo */
+  .text-heart {
+    background: linear-gradient(110deg, var(--color-coral-500), var(--color-peach-400));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-3 font-mono text-[11px] tracking-[0.28em] uppercase;
+  }
+  .eyebrow::before {
+    content: "";
+    @apply h-px w-8 bg-gold-500;
+  }
+
+  .btn-primary {
+    @apply relative inline-flex items-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-navy-900 px-6 py-3.5 text-[15px] font-medium text-paper shadow-[0_10px_30px_-10px_rgba(19,45,80,.6)] transition-transform duration-500 ease-luxe hover:-translate-y-0.5;
+  }
+  .btn-primary::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgba(235, 203, 134, 0.35) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.9s var(--ease-luxe);
+  }
+  .btn-primary:hover::after {
+    transform: translateX(120%);
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-navy-900/15 px-6 py-3.5 text-[15px] font-medium text-navy-900 transition-colors duration-500 hover:border-gold-500 hover:bg-white/60;
+  }
+
+  /* Line mask for Thai text: extra block padding so tone marks/vowels are never clipped */
+  .line-mask {
+    display: block;
+    overflow: hidden;
+    padding-block: 0.14em;
+    margin-block: -0.14em;
+  }
+  .line-mask > span {
+    display: block;
+  }
+
+  .glass {
+    background: color-mix(in oklab, var(--color-paper) 72%, transparent);
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  }
+
+  /* Animated gold border used on the featured pricing card */
+  .foil-border {
+    position: relative;
+    isolation: isolate;
+  }
+  .foil-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(from var(--foil-angle), #daa442, #f36f82, #ffa87e, #ebcb86, #daa442);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: foil-spin 6s linear infinite;
+  }
+
+  .hicon {
+    display: inline-block;
+    flex-shrink: 0;
+    overflow: visible;
+  }
+  .hicon path {
+    stroke-width: var(--icon-stroke, 2);
+  }
+}
+
+/* ---------------------------------------------------------------
+   Idle motion (non-scroll): floats, foil sheen, icon micro-animations
+---------------------------------------------------------------- */
+@property --foil-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes foil-spin {
+  to {
+    --foil-angle: 360deg;
+  }
+}
+@keyframes foil {
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes float-a {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(0, -14px, 0) rotate(-1.2deg); }
+}
+@keyframes float-b {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(6px, 10px, 0) rotate(1.5deg); }
+}
+@keyframes heartbeat {
+  0%, 60%, 100% { transform: scale(1); }
+  10% { transform: scale(1.18); }
+  20% { transform: scale(0.96); }
+  30% { transform: scale(1.12); }
+}
+@keyframes nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.55; transform: scale(0.82) rotate(18deg); }
+}
+@keyframes scan-glow {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.float-a { animation: float-a 9s ease-in-out infinite; }
+.float-b { animation: float-b 7s ease-in-out infinite; }
+.float-c { animation: float-a 11s ease-in-out -3s infinite; }
+.icon-heartbeat { animation: heartbeat 2.4s ease-in-out infinite; transform-origin: center; }
+.icon-twinkle { animation: twinkle 3.2s ease-in-out infinite; transform-origin: center; }
+.group:hover .icon-nudge { animation: nudge 0.9s ease-in-out infinite; }
+.group:hover .icon-spin { transform: rotate(90deg); }
+.icon-spin { transition: transform 0.6s var(--ease-luxe); }
+
+/* Film grain over everything — luxury texture */
+.grain-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* FAQ disclosure */
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+details[open] .faq-plus {
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
