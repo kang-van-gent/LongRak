@@ -1,0 +1,60 @@
+# Production stack: pulls pre-built images from GitHub Container Registry.
+# Copied to the server at $DEPLOY_PATH/docker-compose.yml by the deploy workflow.
+# IMAGE_PREFIX and IMAGE_TAG are exported by the deploy workflow.
+# Services bind to 127.0.0.1 only — put a reverse proxy (Caddy/Nginx) in front for HTTPS.
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    image: ${IMAGE_PREFIX}-server:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+    volumes:
+      - uploads:/repo/server/public/uploads
+    ports:
+      - "127.0.0.1:1337:1337"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    image: ${IMAGE_PREFIX}-web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NUXT_PUBLIC_API_BASE: ${PUBLIC_API_URL}
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - server
+
+  app:
+    image: ${IMAGE_PREFIX}-app:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      NUXT_PUBLIC_API_BASE: ${PUBLIC_API_URL}
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      - server
+
+volumes:
+  pgdata:
+  uploads:

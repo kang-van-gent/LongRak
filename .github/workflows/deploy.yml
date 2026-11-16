@@ -1,0 +1,107 @@
+name: Deploy
+
+# Runs after a PR is merged into main (or manually).
+# 1. Builds Docker images and pushes them to GitHub Container Registry (always).
+# 2. Deploys them to the server over SSH — only when the repo variable
+#    DEPLOY_ENABLED is "true". Leave it unset until the server exists.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  images:
+    name: Build & push (${{ matrix.service }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        service: [server, web, app]
+    outputs:
+      image_prefix: ${{ steps.prefix.outputs.value }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute image prefix (GHCR requires lowercase)
+        id: prefix
+        run: echo "value=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.service }}/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.prefix.outputs.value }}-${{ matrix.service }}:${{ github.sha }}
+            ${{ steps.prefix.outputs.value }}-${{ matrix.service }}:latest
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  deploy:
+    name: Deploy to server
+    needs: images
+    if: vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.PRODUCTION_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload compose file
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: deploy/docker-compose.prod.yml
+          target: ${{ vars.DEPLOY_PATH || '/opt/longrak' }}
+          strip_components: 1
+
+      - name: Pull images & restart stack
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          IMAGE_PREFIX: ${{ needs.images.outputs.image_prefix }}
+          IMAGE_TAG: ${{ github.sha }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/longrak' }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: IMAGE_PREFIX,IMAGE_TAG,DEPLOY_PATH,GHCR_USER,GHCR_TOKEN
+          script: |
+            set -euo pipefail
+            cd "$DEPLOY_PATH"
+            mv -f docker-compose.prod.yml docker-compose.yml
+            test -f .env || { echo "Missing $DEPLOY_PATH/.env on server"; exit 1; }
+
+            # Remember which release is running so manual `docker compose` commands use it too
+            printf 'IMAGE_PREFIX=%s\nIMAGE_TAG=%s\n' "$IMAGE_PREFIX" "$IMAGE_TAG" > .release.env
+            set -a; . ./.release.env; set +a
+
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker logout ghcr.io
+            docker image prune -f

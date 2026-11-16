@@ -1,0 +1,33 @@
+{
+  "name": "longrak",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LongRak monorepo: Nuxt apps (app, web) and Strapi API (server)",
+  "workspaces": [
+    "app",
+    "web",
+    "server"
+  ],
+  "engines": {
+    "node": ">=22.0.0 <=26.x.x",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,web,app -c blue,green,magenta \"npm:dev:server\" \"npm:dev:web\" \"npm:dev:app\"",
+    "dev:server": "npm run dev -w server",
+    "dev:web": "npm run dev -w web -- --port 3000",
+    "dev:app": "npm run dev -w app -- --port 3001",
+    "build": "npm run build --workspaces --if-present",
+    "build:server": "npm run build -w server",
+    "build:web": "npm run build -w web",
+    "build:app": "npm run build -w app",
+    "start:server": "npm run start -w server",
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:db": "docker compose up -d postgres"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
