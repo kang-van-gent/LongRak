@@ -19,7 +19,7 @@ export async function strapiPost<T = unknown>(event: H3Event, path: string, body
       timeout: 15000,
       retry: 1,
     })
-    return { ok: true, data }
+    return { ok: true, data: data as T }
   }
   catch (err: unknown) {
     const e = err as { statusCode?: number; data?: { error?: { message?: string } } }
@@ -45,4 +45,41 @@ export function refererPath(event: H3Event) {
   catch {
     return undefined
   }
+}
+
+type StrapiResult<T> = { ok: true; status: number; data: T } | { ok: false; status: number; body: Record<string, unknown> } | null
+
+/**
+ * General server-to-server call to Strapi that keeps the error body (the LR-W0-01 endpoints
+ * answer `{ ok:false, result, reason }`). null = Strapi not configured.
+ *  - `token: false` for routes authorised by the session secret instead of the API token
+ *  - `secret` is sent as X-LongRak-Session-Secret
+ */
+export async function strapiCall<T = unknown>(
+  event: H3Event,
+  path: string,
+  opts: { method?: 'GET' | 'POST'; body?: Record<string, unknown> | FormData; token?: boolean; secret?: string; headers?: Record<string, string> } = {},
+): Promise<StrapiResult<T>> {
+  const { strapiUrl, strapiToken } = useRuntimeConfig(event)
+  if (!strapiUrl || !strapiToken) return null
+  const res = await $fetch.raw<T>(`${strapiUrl.replace(/\/$/, '')}/api${path}`, {
+    method: opts.method ?? 'GET',
+    body: opts.body,
+    headers: {
+      ...(opts.token === false ? {} : { Authorization: `Bearer ${strapiToken}` }),
+      ...(opts.secret ? { 'X-LongRak-Session-Secret': opts.secret } : {}),
+      ...opts.headers,
+    },
+    timeout: 30000,
+    retry: 0,
+    ignoreResponseError: true,
+  }).catch((err: unknown) => {
+    console.error(`[strapi] ${opts.method ?? 'GET'} ${path} unreachable: ${(err as Error).name}`)
+    return { status: 502, _data: { result: 'strapi_unavailable' } as unknown as T }
+  })
+  if (res.status >= 200 && res.status < 300) return { ok: true, status: res.status, data: res._data as T }
+  const body = (res._data && typeof res._data === 'object' ? res._data : {}) as Record<string, unknown>
+  // log status + result code only — never payloads
+  console.error(`[strapi] ${opts.method ?? 'GET'} ${path.replace(/[0-9a-f-]{36}/g, ':id')} → ${res.status} ${String(body.result ?? (body.error as { message?: string })?.message ?? '')}`)
+  return { ok: false, status: res.status, body }
 }

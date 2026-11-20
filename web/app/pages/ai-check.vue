@@ -2,7 +2,8 @@
 /**
  * /ai-check — Public AI Document Checker (context.md §5–§7, §16)
  *  · Sample first (fictional document, precomputed result, no sign-up)
- *  · Upload → consent → POST /api/ai-check → n8n (server-side) → validated report
+ *  · Upload → consent → POST /api/ai-check (202, job queued in Strapi; n8n runs it)
+ *    → poll GET /api/ai-check/jobs/:id → GET …/report → validated report
  *  · Honest states: not enabled yet, unsupported/too large, timeout, provider down…
  */
 import { gsap } from 'gsap'
@@ -14,7 +15,7 @@ const { locale } = useI18n()
 const localePath = useLocalePath()
 
 const MAX_FILES = 3
-const MAX_MB = 10
+const MAX_MB = 15
 const ACCEPT = ['application/pdf', 'image/jpeg', 'image/png']
 const ACCEPT_EXT = /\.(pdf|jpe?g|png)$/i
 
@@ -40,7 +41,7 @@ const t = useCopy({
     ],
     tryUpload: 'ลองกับเอกสารของคุณ',
     dropTitle: 'ลากไฟล์มาวาง หรือเลือกไฟล์',
-    dropHint: `PDF, JPG, PNG · สูงสุด ${MAX_FILES} ไฟล์ · ไฟล์ละไม่เกิน ${MAX_MB} MB · รวมไม่เกิน 20 หน้า`,
+    dropHint: `PDF, JPG, PNG · สูงสุด ${MAX_FILES} ไฟล์ · ไฟล์ละไม่เกิน ${MAX_MB} MB · รวมไม่เกิน 30 หน้า`,
     choose: 'เลือกไฟล์',
     remove: 'ลบไฟล์',
     docType: 'ประเภทเอกสาร',
@@ -66,7 +67,10 @@ const t = useCopy({
     submit: 'เริ่มวิเคราะห์',
     uploading: (p: number) => `กำลังอัปโหลด ${p}%`,
     analysing: 'กำลังวิเคราะห์เอกสาร',
-    elapsed: (s: number) => `ผ่านไป ${s} วินาที · อาจใช้เวลาสูงสุดประมาณ 2 นาที`,
+    queued: 'รับเอกสารแล้ว · รอคิววิเคราะห์',
+    elapsed: (s: number) => `ผ่านไป ${s} วินาที · ปกติใช้เวลาไม่กี่นาที ปิดหน้านี้แล้วกลับมาได้ภายในแท็บเดิม`,
+    syntheticTitle: 'ผลทดสอบระบบ (SYNTHETIC) — ไม่ใช่การวิเคราะห์เอกสารของคุณ',
+    syntheticBody: 'ขณะนี้ระบบทำงานในโหมดทดสอบ: ไม่มีการอ่านไฟล์ของคุณ และข้อสังเกตด้านล่างเป็นข้อมูลทดสอบที่กำหนดไว้ล่วงหน้า ห้ามใช้ประกอบการตัดสินใจ',
     steps: ['อัปโหลด', 'อ่านและแยกข้อมูล', 'เทียบกับเช็กลิสต์', 'อธิบายพร้อมหลักฐาน'],
     idleTitle: 'ผลวิเคราะห์จะแสดงที่นี่',
     idleBody: 'เช็กลิสต์ + ข้อความอ้างอิงจากเอกสาร + คำถามที่ควรถามอีกฝ่าย แบ่งเป็น ต้องทบทวน / ข้อมูลไม่พอ / พบข้อมูลตามเกณฑ์',
@@ -80,7 +84,7 @@ const t = useCopy({
     errors: {
       invalid_email: 'กรุณาใส่อีเมลที่ถูกต้องก่อนส่งเอกสาร',
       not_configured: 'ระบบวิเคราะห์เอกสารยังไม่เปิดใช้งาน — เอกสารของคุณไม่ได้ถูกส่งไปที่ใด ระหว่างนี้ลองดูผลตัวอย่างได้',
-      consent_required: 'กรุณายืนยันทั้งสองข้อก่อนส่งเอกสาร',
+      consent_required: 'กรุณายืนยันทั้งสามข้อก่อนส่งเอกสาร',
       no_files: 'ยังไม่ได้เลือกไฟล์',
       too_many_files: `เลือกได้สูงสุด ${MAX_FILES} ไฟล์`,
       file_too_large: `มีไฟล์ใหญ่เกิน ${MAX_MB} MB`,
@@ -89,6 +93,16 @@ const t = useCopy({
       timeout: 'การวิเคราะห์ใช้เวลานานเกินกำหนด กรุณาลองใหม่อีกครั้ง หรือแบ่งเอกสารให้สั้นลง',
       provider_unavailable: 'ระบบวิเคราะห์ไม่พร้อมใช้งานชั่วคราว กรุณาลองใหม่ภายหลัง',
       invalid_report: 'ได้ผลลัพธ์ที่ตรวจสอบความถูกต้องไม่ผ่าน จึงไม่แสดงผล กรุณาลองใหม่อีกครั้ง',
+      unreadable_pdf: 'เปิดไฟล์ PDF นี้ไม่ได้ (ไฟล์อาจเสีย) ลองบันทึกใหม่เป็น PDF แล้วอัปโหลดอีกครั้ง',
+      encrypted_pdf: 'ไฟล์ PDF นี้ถูกตั้งรหัสผ่านไว้ กรุณาปลดรหัสผ่านก่อนอัปโหลด',
+      page_limit: 'เอกสารยาวเกิน 30 หน้า กรุณาแบ่งไฟล์ให้สั้นลง',
+      quota_exceeded: 'วันนี้ตรวจเอกสารครบจำนวนที่เปิดให้ทดลองแล้ว กรุณาลองใหม่พรุ่งนี้',
+      document_unreadable: 'อ่านข้อความในเอกสารได้ไม่พอจะประเมิน (เช่น ภาพสแกนไม่ชัด) จึงไม่สร้างข้อสังเกตที่ไม่มีหลักฐาน ลองอัปโหลดไฟล์ที่ชัดขึ้น',
+      fact_conflict: 'ข้อมูลในเอกสารขัดกันเอง (เช่น ยอดเงินไม่ตรงกัน) ระบบจึงไม่สรุปความเสี่ยงให้ กรุณาตรวจสอบกับอีกฝ่าย',
+      cancelled: 'การวิเคราะห์นี้ถูกยกเลิกแล้ว',
+      expired: 'ผลการตรวจนี้หมดอายุแล้ว กรุณาอัปโหลดใหม่',
+      still_processing: 'ยังวิเคราะห์ไม่เสร็จในเวลาที่รอ — ระบบยังทำงานต่อ ลองกลับมาดูใหม่ภายหลังในแท็บนี้',
+      not_found: 'ไม่พบการตรวจนี้ในเบราว์เซอร์นี้ กรุณาอัปโหลดใหม่',
       network: 'เชื่อมต่อไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่',
     } as Record<string, string>,
     errorTitle: 'ยังวิเคราะห์ไม่ได้',
@@ -115,7 +129,7 @@ const t = useCopy({
     ],
     tryUpload: 'Try it with your document',
     dropTitle: 'Drop files here, or choose files',
-    dropHint: `PDF, JPG, PNG · up to ${MAX_FILES} files · ${MAX_MB} MB each · 20 pages in total`,
+    dropHint: `PDF, JPG, PNG · up to ${MAX_FILES} files · ${MAX_MB} MB each · 30 pages in total`,
     choose: 'Choose files',
     remove: 'Remove file',
     docType: 'Document type',
@@ -141,7 +155,10 @@ const t = useCopy({
     submit: 'Start analysis',
     uploading: (p: number) => `Uploading ${p}%`,
     analysing: 'Analysing your document',
-    elapsed: (s: number) => `${s}s elapsed · this can take up to about 2 minutes`,
+    queued: 'Document received · waiting in the queue',
+    elapsed: (s: number) => `${s}s elapsed · usually a few minutes — you can come back to this tab`,
+    syntheticTitle: 'SYNTHETIC test result — not an analysis of your document',
+    syntheticBody: 'The system is running in test mode: your file was not read, and the findings below are fixed test data. Do not rely on them.',
     steps: ['Upload', 'Read and extract', 'Compare with checklist', 'Explain with evidence'],
     idleTitle: 'Your results will appear here',
     idleBody: 'A checklist + quotes from your document + questions to ask the other side, grouped as Needs review / Missing information / Found in document.',
@@ -155,7 +172,7 @@ const t = useCopy({
     errors: {
       invalid_email: 'Please enter a valid email before sending.',
       not_configured: 'Document analysis isn\'t enabled yet — your document was not sent anywhere. In the meantime, you can view the sample.',
-      consent_required: 'Please confirm both statements before sending.',
+      consent_required: 'Please confirm all three statements before sending.',
       no_files: 'No file selected yet.',
       too_many_files: `Choose up to ${MAX_FILES} files.`,
       file_too_large: `A file is larger than ${MAX_MB} MB.`,
@@ -164,6 +181,16 @@ const t = useCopy({
       timeout: 'The analysis took too long. Please try again, or split the document into shorter parts.',
       provider_unavailable: 'The analysis service is temporarily unavailable. Please try again later.',
       invalid_report: 'The result failed validation, so it isn\'t shown. Please try again.',
+      unreadable_pdf: 'This PDF can\'t be opened (it may be damaged). Save it again as PDF and re-upload.',
+      encrypted_pdf: 'This PDF is password-protected. Remove the password before uploading.',
+      page_limit: 'The document is longer than 30 pages. Please split it into shorter files.',
+      quota_exceeded: 'You\'ve reached today\'s limit of free checks. Please try again tomorrow.',
+      document_unreadable: 'Not enough text could be read to assess this document (e.g. a blurry scan), so no unsupported findings were made. Try a clearer file.',
+      fact_conflict: 'The document contradicts itself (e.g. totals don\'t match), so no risk summary was made. Please check with the other side.',
+      cancelled: 'This analysis was cancelled.',
+      expired: 'This check has expired. Please upload again.',
+      still_processing: 'Not finished within the waiting time — it is still running. Check back later in this tab.',
+      not_found: 'This check isn\'t available in this browser. Please upload again.',
       network: 'Couldn\'t connect. Check your internet connection and try again.',
     } as Record<string, string>,
     errorTitle: 'Couldn\'t analyse yet',
@@ -195,6 +222,8 @@ const errorCode = ref('')
 const uploadPct = ref(0)
 const elapsed = ref(0)
 const report = ref<AiReport | null>(null)
+/** Strapi processing_state of the running job (queued → preprocessing → … → completed) */
+const jobState = ref('')
 const dragging = ref(false)
 /** required before upload: the check is saved with it (claimable later). Never sent to the AI. */
 const email = ref('')
@@ -206,7 +235,13 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const sample = computed(() => sampleReports[locale.value === 'en' ? 'en' : 'th'])
 const canSubmit = computed(() => emailValid.value && files.value.length > 0 && consentRights.value && consentProcessing.value && consentStorage.value && phase.value !== 'uploading' && phase.value !== 'analysing')
 const busy = computed(() => phase.value === 'uploading' || phase.value === 'analysing')
-const stepIndex = computed(() => (phase.value === 'uploading' ? 0 : Math.min(3, 1 + Math.floor(elapsed.value / 12))))
+const STATE_STEP: Record<string, number> = { queued: 1, preprocessing: 1, extracting: 1, rule_check: 2, retrieving: 3, model_call: 3, validating: 3 }
+const stepIndex = computed(() => (phase.value === 'uploading' ? 0 : STATE_STEP[jobState.value] ?? 1))
+/** Job error codes (spec.md §5) → this page's messages */
+const JOB_ERRORS: Record<string, string> = {
+  FILE_REJECTED: 'unsupported_file', DOCUMENT_UNREADABLE: 'document_unreadable', FACT_CONFLICT: 'fact_conflict',
+  MODEL_OUTPUT_INVALID: 'invalid_report', GROUNDING_VALIDATION_FAILED: 'invalid_report',
+}
 
 const sizeLabel = (b: number) => (b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`)
 const fileIcon = (f: File): HumbleIconName => (f.type.startsWith('image/') ? 'image' : 'document')
@@ -247,13 +282,68 @@ function removeFile(i: number) {
 }
 
 let timer: ReturnType<typeof setInterval> | undefined
+let poller: ReturnType<typeof setTimeout> | undefined
 let xhr: XMLHttpRequest | undefined
+const JOB_KEY = 'lr_ai_job'
+const POLL_MS = 2000
+const POLL_LIMIT_MS = 15 * 60 * 1000
+
+function failWith(code: string) {
+  clearInterval(timer)
+  clearTimeout(poller)
+  sessionStorage.removeItem(JOB_KEY)
+  errorCode.value = code
+  phase.value = 'error'
+  scrollToResult()
+}
+
+/** Poll the job until it ends; then load the report. */
+function poll(jobId: string, startedAt: number) {
+  clearTimeout(poller)
+  poller = setTimeout(async () => {
+    try {
+      const s = await $fetch<{ processing_state: string; error_code: string | null }>(`/api/ai-check/jobs/${jobId}`)
+      jobState.value = s.processing_state
+      if (s.processing_state === 'completed') {
+        report.value = await $fetch<AiReport>(`/api/ai-check/jobs/${jobId}/report`)
+        clearInterval(timer)
+        sessionStorage.removeItem(JOB_KEY)
+        phase.value = 'done'
+        scrollToResult()
+        return
+      }
+      if (s.processing_state === 'failed') return failWith(JOB_ERRORS[s.error_code ?? ''] ?? 'provider_unavailable')
+      if (s.processing_state === 'cancelled' || s.processing_state === 'expired') return failWith(s.processing_state)
+      if (Date.now() - startedAt > POLL_LIMIT_MS) return failWith('still_processing')
+      poll(jobId, startedAt)
+    }
+    catch (err: unknown) {
+      const e = err as { data?: { data?: { code?: string } }; statusCode?: number }
+      const code = e.data?.data?.code
+      if (code === 'not_found' || code === 'not_configured' || code === 'invalid_report') return failWith(code)
+      if (Date.now() - startedAt > POLL_LIMIT_MS) return failWith('still_processing')
+      poll(jobId, startedAt) // transient: keep trying
+    }
+  }, POLL_MS)
+}
+
+function startPolling(jobId: string, startedAt = Date.now()) {
+  phase.value = 'analysing'
+  mode.value = 'upload'
+  jobState.value = jobState.value || 'queued'
+  elapsed.value = Math.floor((Date.now() - startedAt) / 1000)
+  clearInterval(timer)
+  timer = setInterval(() => elapsed.value++, 1000)
+  sessionStorage.setItem(JOB_KEY, JSON.stringify({ id: jobId, at: startedAt }))
+  poll(jobId, startedAt)
+}
 
 /** XHR instead of fetch: fetch can't report upload progress */
 function submit() {
   if (!canSubmit.value) return
   errorCode.value = ''
   report.value = null
+  jobState.value = ''
   uploadPct.value = 0
   elapsed.value = 0
   phase.value = 'uploading'
@@ -273,32 +363,24 @@ function submit() {
   xhr.upload.onprogress = (e) => {
     if (e.lengthComputable) uploadPct.value = Math.round((e.loaded / e.total) * 100)
   }
-  xhr.upload.onload = () => {
-    phase.value = 'analysing'
-    timer = setInterval(() => elapsed.value++, 1000)
-  }
   xhr.onload = () => {
-    clearInterval(timer)
     const body = xhr!.response
-    if (xhr!.status >= 200 && xhr!.status < 300 && body) {
-      report.value = body as AiReport
-      phase.value = 'done'
-    }
-    else {
-      errorCode.value = body?.data?.code ?? body?.statusMessage ?? 'provider_unavailable'
-      phase.value = 'error'
-    }
-    scrollToResult()
+    if (xhr!.status === 202 && body?.job_public_id) startPolling(body.job_public_id)
+    else failWith(body?.data?.code ?? body?.statusMessage ?? 'provider_unavailable')
   }
-  xhr.onerror = () => {
-    clearInterval(timer)
-    errorCode.value = 'network'
-    phase.value = 'error'
-    scrollToResult()
-  }
+  xhr.onerror = () => failWith('network')
   xhr.send(form)
   scrollToResult()
 }
+
+// came back to the tab / reloaded while a check was running → continue where it was
+onMounted(() => {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(JOB_KEY) ?? 'null')
+    if (saved?.id) startPolling(saved.id, saved.at ?? Date.now())
+  }
+  catch { /* ignore */ }
+})
 
 function reset() {
   phase.value = 'idle'
@@ -330,6 +412,7 @@ function showSample() {
 
 onBeforeUnmount(() => {
   clearInterval(timer)
+  clearTimeout(poller)
   xhr?.abort()
 })
 
@@ -573,6 +656,12 @@ useScene(root, (_el, { isMobile }) => {
                 <HIcon :name="report.saved ? 'check-circle' : 'info-circle'" :size="17" class="mt-0.5 shrink-0" :class="report.saved ? 'text-success' : 'text-warning'" />
                 {{ report.saved ? t.savedNote(email.trim()) : t.notSavedNote }}
               </p>
+              <div v-if="report.synthetic" role="note" class="rounded-2xl border-2 border-danger/40 bg-danger/10 px-4 py-3 text-navy-900">
+                <p class="flex items-center gap-2 font-mono text-[12px] font-medium uppercase tracking-wider text-danger">
+                  <HIcon name="exclamation-triangle" :size="16" />{{ t.syntheticTitle }}
+                </p>
+                <p class="mt-1.5 text-[13.5px] leading-relaxed">{{ t.syntheticBody }}</p>
+              </div>
               <AiReportView :key="report.analysis_id" :report="report" @reset="reset" @request="goToRequest" />
               <AiProjectRequest v-model:email="email" :analysis-id="report.analysis_id" :document-type="report.document_type" />
             </div>
@@ -581,7 +670,7 @@ useScene(root, (_el, { isMobile }) => {
             <div v-else-if="busy" class="rounded-[1.8rem] border border-navy-900/8 bg-white/90 p-6 shadow-[0_40px_100px_-50px_rgba(19,45,80,.45)] md:p-8">
               <p class="flex items-center gap-3 font-display text-xl text-navy-900">
                 <HIcon name="spinner-earring" :size="22" class="animate-spin text-gold-600" />
-                {{ phase === 'uploading' ? t.uploading(uploadPct) : t.analysing }}
+                {{ phase === 'uploading' ? t.uploading(uploadPct) : jobState === 'queued' ? t.queued : t.analysing }}
               </p>
               <div class="mt-4 h-1.5 overflow-hidden rounded-full bg-navy-900/8">
                 <div v-if="phase === 'uploading'" class="h-full rounded-full bg-gradient-to-r from-gold-500 to-coral-500 transition-[width] duration-300" :style="{ width: `${uploadPct}%` }" />

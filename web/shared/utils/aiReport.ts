@@ -74,6 +74,8 @@ export interface AiReport {
   created_at?: string
   /** true for the precomputed sample — never for a real analysis */
   is_sample?: boolean
+  /** true when produced by the SYNTHETIC mock AI (AI_PROVIDER=mock): fixed test data, not an analysis of the file */
+  synthetic?: boolean
   /** set by /api/ai-check: whether the check was saved with the user's email (claimable later) */
   saved?: boolean
 }
@@ -173,5 +175,6 @@ export function normalizeReport(raw: unknown): AiReport | null {
     limitations: arr(r.limitations).map((m) => str(m, 300)).filter((m): m is string => !!m).slice(0, 10),
     created_at: str(r.created_at, 40),
     is_sample: false,
+    synthetic: r.synthetic === true,
   }
 }
