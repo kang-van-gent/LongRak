@@ -1,0 +1,56 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_evaluation_runs",
+  "info": {
+    "singularName": "evaluation-run",
+    "pluralName": "evaluation-runs",
+    "displayName": "Evaluation Run",
+    "description": "Aggregate evaluation of a model/prompt/rules/KB combination"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "run_label": {
+      "type": "string",
+      "required": true
+    },
+    "ruleset_version_key": {
+      "type": "string"
+    },
+    "prompt_version_key": {
+      "type": "string"
+    },
+    "model_id": {
+      "type": "string"
+    },
+    "kb_snapshot_key": {
+      "type": "string"
+    },
+    "metrics_json": {
+      "type": "json"
+    },
+    "started_at": {
+      "type": "datetime"
+    },
+    "completed_at": {
+      "type": "datetime"
+    },
+    "release_decision": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "pass",
+        "fail"
+      ],
+      "default": "pending"
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_analysis_inputs",
+  "info": {
+    "singularName": "analysis-input",
+    "pluralName": "analysis-inputs",
+    "displayName": "Analysis Input",
+    "description": "A document within a job"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "document_kind": {
+      "type": "enumeration",
+      "enum": [
+        "quotation",
+        "contract",
+        "boq",
+        "milestone_schedule",
+        "drawing",
+        "receipt",
+        "change_order",
+        "other",
+        "unknown"
+      ],
+      "required": true,
+      "default": "unknown"
+    },
+    "sequence_no": {
+      "type": "integer",
+      "default": 1
+    },
+    "page_count": {
+      "type": "integer"
+    },
+    "extraction_state": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "complete",
+        "partial",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "contains_pii": {
+      "type": "boolean",
+      "default": false
+    },
+    "redaction_state": {
+      "type": "enumeration",
+      "enum": [
+        "not_needed",
+        "pending",
+        "done",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "language_hint": {
+      "type": "string"
+    },
+    "analysis_job": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::analysis-job.analysis-job",
+      "inversedBy": "analysis_inputs"
+    },
+    "file_asset": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::file-asset.file-asset",
+      "inversedBy": "analysis_inputs"
+    },
+    "finding_citations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::finding-citation.finding-citation",
+      "mappedBy": "analysis_input"
+    }
+  }
+}

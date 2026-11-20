@@ -1,0 +1,110 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_analysis_jobs",
+  "info": {
+    "singularName": "analysis-job",
+    "pluralName": "analysis-jobs",
+    "displayName": "Analysis Job",
+    "description": "One document check request"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "job_type": {
+      "type": "enumeration",
+      "enum": [
+        "pre_contract_check",
+        "quotation_check",
+        "milestone_check",
+        "boq_check"
+      ],
+      "required": true,
+      "default": "quotation_check"
+    },
+    "processing_state": {
+      "type": "enumeration",
+      "enum": [
+        "queued",
+        "preprocessing",
+        "extracting",
+        "rule_check",
+        "retrieving",
+        "model_call",
+        "validating",
+        "completed",
+        "failed",
+        "cancelled",
+        "expired"
+      ],
+      "required": true,
+      "default": "queued"
+    },
+    "priority": {
+      "type": "integer",
+      "default": 0
+    },
+    "queued_at": {
+      "type": "datetime"
+    },
+    "started_at": {
+      "type": "datetime"
+    },
+    "finished_at": {
+      "type": "datetime"
+    },
+    "error_code": {
+      "type": "string"
+    },
+    "idempotency_key_hash": {
+      "type": "string",
+      "private": true
+    },
+    "attempt_count": {
+      "type": "integer",
+      "default": 0
+    },
+    "expires_at": {
+      "type": "datetime"
+    },
+    "requested_language": {
+      "type": "enumeration",
+      "enum": [
+        "th",
+        "en"
+      ],
+      "default": "th"
+    },
+    "analysis_session": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::analysis-session.analysis-session",
+      "inversedBy": "analysis_jobs"
+    },
+    "analysis_inputs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::analysis-input.analysis-input",
+      "mappedBy": "analysis_job"
+    },
+    "analysis_runs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::analysis-run.analysis-run",
+      "mappedBy": "analysis_job"
+    },
+    "analysis_feedback": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::analysis-feedback.analysis-feedback",
+      "mappedBy": "analysis_job"
+    }
+  }
+}

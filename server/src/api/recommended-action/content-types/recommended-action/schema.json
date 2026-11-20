@@ -1,0 +1,68 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_recommended_actions",
+  "info": {
+    "singularName": "recommended-action",
+    "pluralName": "recommended-actions",
+    "displayName": "Recommended Action",
+    "description": "Question to ask / document to request — a suggestion until someone approves it"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "action_kind": {
+      "type": "enumeration",
+      "enum": [
+        "question_to_ask",
+        "request_document",
+        "clarify_clause",
+        "prepare_evidence",
+        "expert_review"
+      ],
+      "required": true
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "priority": {
+      "type": "enumeration",
+      "enum": [
+        "low",
+        "normal",
+        "high"
+      ],
+      "default": "normal"
+    },
+    "related_milestone_no": {
+      "type": "integer"
+    },
+    "action_state": {
+      "type": "enumeration",
+      "enum": [
+        "suggested",
+        "accepted_by_user",
+        "dismissed",
+        "converted_to_project"
+      ],
+      "default": "suggested"
+    },
+    "analysis_finding": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::analysis-finding.analysis-finding",
+      "inversedBy": "recommended_actions"
+    }
+  }
+}

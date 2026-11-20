@@ -10,7 +10,7 @@ import { gsap } from 'gsap'
 import type { HumbleIconName } from '~/utils/humbleicons'
 
 const root = ref<HTMLElement | null>(null)
-const scrollTo = useSmoothScroll()
+const localePath = useLocalePath()
 const stage = ref<HTMLElement | null>(null)
 const fit = ref<HTMLElement | null>(null)
 useFitHeight(stage, fit)
@@ -280,10 +280,10 @@ useScene(root, (_el, { isMobile }) => {
               <HIcon name="info-circle" :size="15" class="mt-px" />
               {{ t.limit }}
             </p>
-            <a href="#contact" class="btn-primary group !py-2.5 !text-[14px]" @click.prevent="scrollTo('#contact')">
+            <NuxtLink :to="localePath('/ai-check')" class="btn-primary group !py-2.5 !text-[14px]">
               {{ t.cta }}
               <HIcon name="arrow-right" :size="16" class="icon-nudge" />
-            </a>
+            </NuxtLink>
           </div>
         </div>
       </div>

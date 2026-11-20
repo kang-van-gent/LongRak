@@ -1,0 +1,72 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_evidence_plan_items",
+  "info": {
+    "singularName": "evidence-plan-item",
+    "pluralName": "evidence-plan-items",
+    "displayName": "Evidence Plan Item",
+    "description": "One evidence requirement in a draft plan"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "sequence_no": {
+      "type": "integer",
+      "default": 1
+    },
+    "phase_or_milestone_hint": {
+      "type": "string"
+    },
+    "requirement_label": {
+      "type": "string",
+      "required": true
+    },
+    "why_needed": {
+      "type": "text"
+    },
+    "evidence_kind": {
+      "type": "enumeration",
+      "enum": [
+        "photo",
+        "video",
+        "receipt",
+        "design_approval",
+        "boq",
+        "inspection",
+        "other"
+      ],
+      "default": "other"
+    },
+    "required_before_payment": {
+      "type": "boolean",
+      "default": false
+    },
+    "origin_finding_code": {
+      "type": "string"
+    },
+    "review_state": {
+      "type": "enumeration",
+      "enum": [
+        "ai_suggested",
+        "user_selected",
+        "mutually_agreed",
+        "discarded"
+      ],
+      "default": "ai_suggested"
+    },
+    "evidence_plan_draft": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::evidence-plan-draft.evidence-plan-draft",
+      "inversedBy": "evidence_plan_items"
+    }
+  }
+}

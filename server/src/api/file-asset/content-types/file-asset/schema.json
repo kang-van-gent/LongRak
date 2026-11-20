@@ -1,0 +1,95 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_file_assets",
+  "info": {
+    "singularName": "file-asset",
+    "pluralName": "file-assets",
+    "displayName": "File Asset",
+    "description": "Metadata of a privately stored file (the file itself lives in private object storage, never here)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "purpose": {
+      "type": "enumeration",
+      "enum": [
+        "demo_input",
+        "project_document",
+        "evidence",
+        "identity",
+        "inspection",
+        "export",
+        "other"
+      ],
+      "required": true
+    },
+    "storage_bucket_alias": {
+      "type": "string",
+      "private": true
+    },
+    "object_key_private": {
+      "type": "string",
+      "private": true
+    },
+    "original_name_encrypted": {
+      "type": "string",
+      "private": true
+    },
+    "mime_detected": {
+      "type": "string"
+    },
+    "byte_size": {
+      "type": "biginteger"
+    },
+    "sha256": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "object_version_id": {
+      "type": "string",
+      "private": true
+    },
+    "upload_state": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "scanned",
+        "accepted",
+        "quarantined",
+        "removed"
+      ],
+      "required": true,
+      "default": "pending"
+    },
+    "uploaded_at": {
+      "type": "datetime"
+    },
+    "retention_until": {
+      "type": "datetime"
+    },
+    "deleted_at": {
+      "type": "datetime"
+    },
+    "encryption_key_ref": {
+      "type": "string",
+      "private": true
+    },
+    "metadata_safe": {
+      "type": "json"
+    },
+    "analysis_inputs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::analysis-input.analysis-input",
+      "mappedBy": "file_asset"
+    }
+  }
+}

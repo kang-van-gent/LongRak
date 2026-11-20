@@ -1,0 +1,76 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_policy_versions",
+  "info": {
+    "singularName": "policy-version",
+    "pluralName": "policy-versions",
+    "displayName": "Policy Version",
+    "description": "Exact text of privacy/terms/processing notices users accepted. Immutable after effective — supersede with a new version."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "policy_kind": {
+      "type": "enumeration",
+      "enum": [
+        "privacy",
+        "terms",
+        "document_processing",
+        "project_terms",
+        "retention"
+      ],
+      "required": true
+    },
+    "version_label": {
+      "type": "string",
+      "required": true
+    },
+    "language": {
+      "type": "enumeration",
+      "enum": [
+        "th",
+        "en"
+      ],
+      "required": true,
+      "default": "th"
+    },
+    "content": {
+      "type": "richtext",
+      "required": true
+    },
+    "content_sha256": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "effective_at": {
+      "type": "datetime"
+    },
+    "retired_at": {
+      "type": "datetime"
+    },
+    "policy_state": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "active",
+        "retired"
+      ],
+      "required": true,
+      "default": "draft"
+    },
+    "consent_receipts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::consent-receipt.consent-receipt",
+      "mappedBy": "policy_version"
+    }
+  }
+}

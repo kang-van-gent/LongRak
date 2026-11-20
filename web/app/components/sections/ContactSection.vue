@@ -3,7 +3,7 @@
  * CONTACT / PILOT REQUEST — closing scene
  * Techniques: giant bleed typography sliding with scroll, form card rises
  * with perspective, master logo resolves into view.
- * NOTE: there is no lead backend yet — the form says so instead of faking success.
+ * Submits to /api/leads → Strapi. If Strapi isn't connected, the form says nothing was sent.
  */
 import { gsap } from 'gsap'
 
@@ -25,7 +25,11 @@ const t = useCopy({
     contact: 'อีเมล หรือ LINE ID',
     consent: 'ยินยอมให้ LongRak ใช้ข้อมูลนี้เพื่อติดต่อกลับเรื่องการทดลองใช้งานเท่านั้น',
     submit: 'ขอทดลองใช้งาน',
-    demo: 'Demo: ระบบรับลงทะเบียนยังไม่เชื่อมต่อ ข้อมูลของคุณยังไม่ถูกส่งหรือบันทึก',
+    demo: 'ระบบรับลงทะเบียนยังไม่เชื่อมต่อ ข้อมูลของคุณยังไม่ถูกส่งหรือบันทึก',
+    sending: 'กำลังส่ง…',
+    sent: 'ได้รับข้อมูลแล้ว เราจะติดต่อกลับเร็ว ๆ นี้',
+    failed: 'ส่งไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
+    rateLimited: 'ส่งถี่เกินไป กรุณารอสักครู่แล้วลองใหม่',
   },
   en: {
     bleed: 'Love the home · Trust the work',
@@ -42,18 +46,34 @@ const t = useCopy({
     contact: 'Email or LINE ID',
     consent: 'I agree that LongRak may use this information only to contact me about the pilot.',
     submit: 'Request pilot access',
-    demo: 'Demo: registration is not connected yet. Your details have not been sent or saved.',
+    demo: 'Registration is not connected yet. Your details have not been sent or saved.',
+    sending: 'Sending…',
+    sent: 'Thanks — we\'ll be in touch soon.',
+    failed: 'Couldn\'t send. Please try again.',
+    rateLimited: 'Too many requests — please wait a moment and try again.',
   },
 })
 
 const { locale } = useI18n()
 
 const form = reactive({ name: '', contact: '', role: 'owner', consent: false })
-const status = ref<'idle' | 'demo'>('idle')
+const status = ref<'idle' | 'sending' | 'sent' | 'demo' | 'failed' | 'rate_limited'>('idle')
 
-function submit() {
-  // TODO: POST to /api/leads (Strapi) once the endpoint and privacy notice are ready.
-  status.value = 'demo'
+/** Saved as a lead in Strapi via the website server (POST /api/leads). */
+async function submit() {
+  if (status.value === 'sending') return
+  status.value = 'sending'
+  try {
+    await $fetch('/api/leads', {
+      method: 'POST',
+      body: { name: form.name, contact: form.contact, role: form.role, consent: form.consent, locale: locale.value },
+    })
+    status.value = 'sent'
+  }
+  catch (err: unknown) {
+    const code = (err as { data?: { data?: { code?: string } } }).data?.data?.code
+    status.value = code === 'not_configured' ? 'demo' : code === 'rate_limited' ? 'rate_limited' : 'failed'
+  }
 }
 
 useScene(root, () => {
@@ -136,18 +156,27 @@ useScene(root, () => {
           {{ t.consent }}
         </label>
 
-        <button type="submit" class="btn-primary group mt-7 w-full justify-center">
-          {{ t.submit }}
-          <HIcon name="arrow-right" :size="18" class="icon-nudge" />
+        <button type="submit" class="btn-primary group mt-7 w-full justify-center disabled:opacity-50" :disabled="status === 'sending' || status === 'sent'">
+          <HIcon v-if="status === 'sending'" name="spinner-earring" :size="18" class="animate-spin" />
+          {{ status === 'sending' ? t.sending : t.submit }}
+          <HIcon v-if="status !== 'sending'" name="arrow-right" :size="18" class="icon-nudge" />
         </button>
 
         <p
-          v-if="status === 'demo'"
+          v-if="status === 'sent'"
+          role="status"
+          class="mt-4 flex items-start gap-2 rounded-2xl border border-success/25 bg-success/10 px-4 py-3 text-[13px] text-navy-800"
+        >
+          <HIcon name="check-circle" :size="16" class="mt-0.5 shrink-0 text-success" />
+          {{ t.sent }}
+        </p>
+        <p
+          v-else-if="status === 'demo' || status === 'failed' || status === 'rate_limited'"
           role="status"
           class="mt-4 flex items-start gap-2 rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-[13px] text-navy-800"
         >
           <HIcon name="info-circle" :size="16" class="mt-0.5 shrink-0 text-warning" />
-          {{ t.demo }}
+          {{ status === 'demo' ? t.demo : status === 'rate_limited' ? t.rateLimited : t.failed }}
         </p>
       </form>
     </div>

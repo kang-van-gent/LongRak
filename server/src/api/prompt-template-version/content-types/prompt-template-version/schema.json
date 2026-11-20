@@ -1,0 +1,58 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_prompt_template_versions",
+  "info": {
+    "singularName": "prompt-template-version",
+    "pluralName": "prompt-template-versions",
+    "displayName": "Prompt Template Version",
+    "description": "Approved prompt templates (no credentials)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "prompt_key": {
+      "type": "string",
+      "required": true
+    },
+    "version_label": {
+      "type": "string",
+      "required": true
+    },
+    "template_body_private": {
+      "type": "text",
+      "private": true
+    },
+    "output_schema_version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "datetime"
+    },
+    "template_sha256": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "template_state": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "approved",
+        "retired"
+      ],
+      "required": true,
+      "default": "draft"
+    }
+  }
+}

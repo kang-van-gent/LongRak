@@ -1,0 +1,62 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_retention_policies",
+  "info": {
+    "singularName": "retention-policy",
+    "pluralName": "retention-policies",
+    "displayName": "Retention Policy",
+    "description": "How long each data category is kept. Never indefinite without a reason."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "policy_key": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "data_category": {
+      "type": "enumeration",
+      "enum": [
+        "demo",
+        "analysis",
+        "project_evidence",
+        "account",
+        "analytics",
+        "audit"
+      ],
+      "required": true
+    },
+    "ttl_days": {
+      "type": "integer"
+    },
+    "trigger_event": {
+      "type": "enumeration",
+      "enum": [
+        "created",
+        "completed",
+        "last_activity",
+        "policy_defined"
+      ],
+      "default": "created"
+    },
+    "legal_basis_note": {
+      "type": "text"
+    },
+    "policy_state": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "active",
+        "retired"
+      ],
+      "required": true,
+      "default": "draft"
+    },
+    "reviewed_at": {
+      "type": "datetime"
+    }
+  }
+}

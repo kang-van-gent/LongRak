@@ -1,0 +1,101 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_web_pages",
+  "info": {
+    "singularName": "web-page",
+    "pluralName": "web-pages",
+    "displayName": "Web Page",
+    "description": "CMS pages (blocks + SEO)"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "page_kind": {
+      "type": "enumeration",
+      "enum": [
+        "home",
+        "about",
+        "ai_check",
+        "pricing",
+        "trust",
+        "faq",
+        "other"
+      ],
+      "default": "other",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "blocks": {
+      "type": "dynamiczone",
+      "components": [
+        "website.hero",
+        "website.feature-card",
+        "website.step",
+        "website.testimonial",
+        "website.comparison-row",
+        "website.cta-section"
+      ],
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "sort_order": {
+      "type": "integer",
+      "default": 0,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "show_nav": {
+      "type": "boolean",
+      "default": false,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    }
+  }
+}

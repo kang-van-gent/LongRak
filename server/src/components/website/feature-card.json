@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_website_feature_cards",
+  "info": {
+    "displayName": "Feature Card",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "body": {
+      "type": "text"
+    },
+    "icon_name": {
+      "type": "string"
+    },
+    "phase_label": {
+      "type": "string"
+    }
+  }
+}

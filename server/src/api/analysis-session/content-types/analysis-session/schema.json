@@ -1,0 +1,98 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_analysis_sessions",
+  "info": {
+    "singularName": "analysis-session",
+    "pluralName": "analysis-sessions",
+    "displayName": "Analysis Session",
+    "description": "One check on /ai-check. Stores the email given before upload (private) so a later account with the same confirmed email can claim the results. TTL-bound."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "mode": {
+      "type": "enumeration",
+      "enum": [
+        "sample",
+        "anonymous_upload",
+        "account",
+        "project"
+      ],
+      "required": true,
+      "default": "anonymous_upload"
+    },
+    "session_state": {
+      "type": "enumeration",
+      "enum": [
+        "open",
+        "processing",
+        "completed",
+        "expired",
+        "deleted"
+      ],
+      "required": true,
+      "default": "open"
+    },
+    "session_secret_digest": {
+      "type": "string",
+      "private": true
+    },
+    "expires_at": {
+      "type": "datetime"
+    },
+    "deletion_requested_at": {
+      "type": "datetime"
+    },
+    "source_page": {
+      "type": "string"
+    },
+    "file_count": {
+      "type": "integer",
+      "default": 0
+    },
+    "usage_quota_bucket": {
+      "type": "string",
+      "private": true
+    },
+    "contact_email": {
+      "type": "email",
+      "private": true
+    },
+    "claimed_by": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "claimed_at": {
+      "type": "datetime"
+    },
+    "requested_language": {
+      "type": "enumeration",
+      "enum": [
+        "th",
+        "en"
+      ],
+      "default": "th"
+    },
+    "analysis_jobs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::analysis-job.analysis-job",
+      "mappedBy": "analysis_session"
+    },
+    "consent_receipts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::consent-receipt.consent-receipt",
+      "mappedBy": "analysis_session"
+    }
+  }
+}

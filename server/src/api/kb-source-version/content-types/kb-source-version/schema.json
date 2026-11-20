@@ -1,0 +1,83 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_kb_source_versions",
+  "info": {
+    "singularName": "kb-source-version",
+    "pluralName": "kb-source-versions",
+    "displayName": "KB Source Version",
+    "description": "A specific version of a source; effective dates are read from the original, not the crawl date"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "version_label": {
+      "type": "string",
+      "required": true
+    },
+    "file_sha256": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "source_document_key_private": {
+      "type": "string",
+      "private": true
+    },
+    "fetched_at": {
+      "type": "datetime"
+    },
+    "published_at_source": {
+      "type": "date"
+    },
+    "effective_at": {
+      "type": "date"
+    },
+    "expires_at": {
+      "type": "date"
+    },
+    "review_state": {
+      "type": "enumeration",
+      "enum": [
+        "unreviewed",
+        "expert_review",
+        "published",
+        "superseded",
+        "rejected",
+        "uncertain"
+      ],
+      "required": true,
+      "default": "unreviewed"
+    },
+    "reviewed_at": {
+      "type": "datetime"
+    },
+    "reviewer_name_snapshot": {
+      "type": "string"
+    },
+    "applicability_scope": {
+      "type": "json"
+    },
+    "supersedes_version_key": {
+      "type": "string"
+    },
+    "kb_source": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::kb-source.kb-source",
+      "inversedBy": "kb_source_versions"
+    },
+    "finding_citations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::finding-citation.finding-citation",
+      "mappedBy": "kb_source_version"
+    }
+  }
+}

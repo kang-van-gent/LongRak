@@ -1,0 +1,59 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_analysis_feedback_entries",
+  "info": {
+    "singularName": "analysis-feedback",
+    "pluralName": "analysis-feedback-entries",
+    "displayName": "Analysis Feedback",
+    "description": "User feedback on a report (no private document excerpts)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "helpfulness": {
+      "type": "integer",
+      "min": 1,
+      "max": 5
+    },
+    "finding_accuracy_vote": {
+      "type": "enumeration",
+      "enum": [
+        "accurate",
+        "uncertain",
+        "inaccurate"
+      ]
+    },
+    "comment_sanitized": {
+      "type": "text"
+    },
+    "issue_kind": {
+      "type": "enumeration",
+      "enum": [
+        "incorrect_amount",
+        "wrong_reference",
+        "unreadable",
+        "unclear",
+        "privacy",
+        "other"
+      ],
+      "default": "other"
+    },
+    "created_at_client": {
+      "type": "datetime"
+    },
+    "analysis_job": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::analysis-job.analysis-job",
+      "inversedBy": "analysis_feedback"
+    }
+  }
+}

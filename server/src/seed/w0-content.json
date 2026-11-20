@@ -1,0 +1,418 @@
+{
+  "_note": "W0 seed — mirrors the current website copy (web/app/components/sections/*, web/app/utils/sampleReport.ts). Prices are Early Access hypotheses. Retention policies are DRAFT with no TTL: real periods must be decided (and reviewed) before accepting customer files.",
+  "site_setting": {
+    "brand_name": "LongRak",
+    "thai_name": "หลงรัก",
+    "default_locale": "th",
+    "maintenance_mode": false,
+    "th": {
+      "tagline": "ก่อนตกลงจ้าง ลองตรวจให้ชัด ก่อนเริ่มงาน เก็บหลักฐานให้ครบ",
+      "seo_defaults": {
+        "meta_title": "LongRak (หลงรัก) — ข้อตกลงชัดเจน หลักฐานตรวจสอบได้",
+        "meta_description": "พื้นที่กลางสำหรับเจ้าของบ้านและผู้รับเหมา: เอกสาร ข้อตกลง งวดงาน และหลักฐานที่ตรวจสอบย้อนหลังได้"
+      }
+    },
+    "en": {
+      "tagline": "Check it clearly before you hire. Keep the evidence complete before work begins.",
+      "seo_defaults": {
+        "meta_title": "LongRak — Clear agreements, verifiable evidence",
+        "meta_description": "A neutral space for homeowners and contractors: documents, agreements, milestones and evidence you can verify later."
+      }
+    }
+  },
+  "faq_items": [
+    {
+      "category": "ai",
+      "sort_order": 1,
+      "is_featured": true,
+      "th": {
+        "question": "ผลวิเคราะห์จาก AI ถือเป็นคำปรึกษาทางกฎหมายไหม?",
+        "answer": "ไม่ใช่ AI ของ LongRak ช่วยตรวจความครบถ้วนและชี้จุดที่ควรทบทวนเบื้องต้นเท่านั้น หากเป็นเรื่องข้อกฎหมายหรือโครงสร้าง ควรปรึกษาทนายหรือวิศวกรที่มีคุณสมบัติ"
+      },
+      "en": {
+        "question": "Is the AI analysis legal advice?",
+        "answer": "No. LongRak's AI only checks completeness and points out what is worth reviewing. For legal or structural questions, consult a qualified lawyer or engineer."
+      }
+    },
+    {
+      "category": "ai",
+      "sort_order": 2,
+      "is_featured": true,
+      "th": {
+        "question": "ถ้า AI อ่านเอกสารไม่ออก จะเกิดอะไรขึ้น?",
+        "answer": "ระบบจะบอกตรง ๆ ว่า “อ่านไม่ครบ” หรือ “ข้อมูลไม่พอ” และขอไฟล์ใหม่ แทนการเดาผลลัพธ์"
+      },
+      "en": {
+        "question": "What happens if the AI can't read my document?",
+        "answer": "It tells you plainly that the document is “not fully readable” or that there is “missing information”, and asks for a new file instead of guessing."
+      }
+    },
+    {
+      "category": "privacy",
+      "sort_order": 3,
+      "is_featured": true,
+      "th": {
+        "question": "เอกสารที่อัปโหลดจะถูกเก็บไว้นานแค่ไหน?",
+        "answer": "เราจะแจ้งระยะเวลาเก็บอย่างชัดเจนก่อนเปิดรับไฟล์จริง และลบไฟล์ชั่วคราวตามรอบที่แจ้ง เอกสารของคุณจะไม่ถูกนำไปเป็นคลังความรู้ส่วนกลางหรือใช้ฝึกโมเดล"
+      },
+      "en": {
+        "question": "How long are uploaded documents kept?",
+        "answer": "We will state the retention period clearly before accepting real files, and delete temporary files on the stated schedule. Your documents are never added to a shared knowledge base or used to train models."
+      }
+    },
+    {
+      "category": "payment",
+      "sort_order": 4,
+      "is_featured": false,
+      "th": {
+        "question": "LongRak รับพักเงินค่าก่อสร้างไหม?",
+        "answer": "ไม่รับ ผู้ว่าจ้างจ่ายให้ผู้รับเหมาโดยตรง LongRak บันทึกว่าแจ้งจ่ายแล้วและอีกฝ่ายยืนยันรับเงินแล้ว — สองเหตุการณ์นี้แยกจากกันเสมอ"
+      },
+      "en": {
+        "question": "Does LongRak hold construction payments?",
+        "answer": "No. The client pays the contractor directly. LongRak records that a payment was reported and that the other side confirmed receiving it — these are always two separate events."
+      }
+    },
+    {
+      "category": "other",
+      "sort_order": 5,
+      "is_featured": false,
+      "th": {
+        "question": "ผู้รับเหมาต้องเสียค่าใช้จ่ายไหม?",
+        "answer": "แนวคิดเริ่มต้นคือผู้ว่าจ้างเป็นผู้จ่าย และผู้รับเหมาเข้าร่วมได้ฟรี หรือร้านบิ้วอินจะเป็นผู้จ่ายแล้วเชิญลูกค้าเข้ามาฟรีก็ได้ (อยู่ระหว่างทดลอง) ใครจ่ายก็ไม่มีสิทธิแก้ข้อมูลแทนอีกฝ่าย"
+      },
+      "en": {
+        "question": "Do contractors have to pay?",
+        "answer": "The starting idea is that the client pays and contractors join free — or a built-in workshop pays and invites its customer free (still being tested). Whoever pays never gets the right to edit the other side's information."
+      }
+    },
+    {
+      "category": "evidence",
+      "sort_order": 6,
+      "is_featured": false,
+      "th": {
+        "question": "หลักฐานใน LongRak ใช้ในศาลได้ไหม?",
+        "answer": "หลักฐานอิเล็กทรอนิกส์อาจนำไปประกอบการใช้สิทธิทางกฎหมายได้ แต่ศาลเป็นผู้ชั่งน้ำหนักความน่าเชื่อถือ LongRak ไม่รับรองผลทางคดี"
+      },
+      "en": {
+        "question": "Can evidence from LongRak be used in court?",
+        "answer": "Electronic evidence may support a legal claim, but courts decide how much weight it carries. LongRak does not guarantee any legal outcome."
+      }
+    }
+  ],
+  "plans": [
+    {
+      "plan_code": "free_draft",
+      "billing_model": "free",
+      "display_price_amount": null,
+      "is_featured": false,
+      "sort_order": 1,
+      "public_state": "active",
+      "th": {
+        "display_name": "Free Draft",
+        "description": "ลองสร้างร่างโครงการและดูตัวอย่างเช็กลิสต์",
+        "feature_summary": {
+          "items": [
+            "ร่างโครงการแบบจำกัด",
+            "ดูตัวอย่างรายงานวิเคราะห์",
+            "ทดลอง AI แบบจำกัดจำนวนครั้ง"
+          ],
+          "proposed": true
+        },
+        "display_price_unit": "ฟรี"
+      },
+      "en": {
+        "display_name": "Free Draft",
+        "description": "Draft a project and preview the checklist",
+        "feature_summary": {
+          "items": [
+            "Limited project draft",
+            "Sample analysis report",
+            "Limited AI trial runs"
+          ],
+          "proposed": true
+        },
+        "display_price_unit": "Free"
+      }
+    },
+    {
+      "plan_code": "trust_project",
+      "billing_model": "per_project",
+      "display_price_amount": 790,
+      "is_featured": false,
+      "sort_order": 2,
+      "public_state": "active",
+      "th": {
+        "display_name": "Trust Project",
+        "description": "พื้นที่กลางสำหรับหนึ่งโครงการ",
+        "feature_summary": {
+          "items": [
+            "ข้อตกลงร่วมกันพร้อมเวอร์ชัน",
+            "หลักฐานและงวดงาน",
+            "ตรวจรับ ประวัติ และส่งออกตามข้อจำกัด"
+          ],
+          "proposed": true
+        },
+        "display_price_unit": "บาท / โครงการ"
+      },
+      "en": {
+        "display_name": "Trust Project",
+        "description": "A neutral space for one project",
+        "feature_summary": {
+          "items": [
+            "Shared, versioned agreement",
+            "Evidence and milestones",
+            "Sign-off, history and export (within limits)"
+          ],
+          "proposed": true
+        },
+        "display_price_unit": "THB / project"
+      }
+    },
+    {
+      "plan_code": "trust_project_plus",
+      "billing_model": "per_project",
+      "display_price_amount": 1490,
+      "is_featured": true,
+      "sort_order": 3,
+      "public_state": "active",
+      "th": {
+        "display_name": "Trust Project Plus",
+        "description": "Trust Project + AI ช่วยตรวจเอกสาร",
+        "feature_summary": {
+          "items": [
+            "ทุกอย่างใน Trust Project",
+            "AI ตรวจความครบถ้วนของเอกสาร",
+            "วิเคราะห์ความเสี่ยงงวดเงิน"
+          ],
+          "proposed": true
+        },
+        "display_price_unit": "บาท / โครงการ"
+      },
+      "en": {
+        "display_name": "Trust Project Plus",
+        "description": "Trust Project + AI document review",
+        "feature_summary": {
+          "items": [
+            "Everything in Trust Project",
+            "AI completeness check of documents",
+            "Payment-schedule risk analysis"
+          ],
+          "proposed": true
+        },
+        "display_price_unit": "THB / project"
+      }
+    }
+  ],
+  "demo_sample": {
+    "slug": "kitchen-renovation-quotation",
+    "work_type": "renovation",
+    "sample_version": "1",
+    "sample_state": "active",
+    "th": {
+      "title": "ใบเสนอราคา — รีโนเวทห้องครัว (สมมติ)",
+      "summary": "ใบเสนอราคางานรีโนเวทห้องครัว (เอกสารสมมติ) ยอดงวดรวมตรงกับยอดสัญญา แต่ยังมีรายการที่ควรทบทวนก่อนโอนมัดจำ",
+      "precomputed_result_json": {
+        "schema_version": "1.0",
+        "analysis_id": "sample-kitchen-001",
+        "document_type": "quotation",
+        "document_read_status": "complete",
+        "amounts": {
+          "contract_total_thb": 200000,
+          "listed_milestones_total_thb": 200000,
+          "advance_thb": 100000,
+          "advance_ratio": 0.5,
+          "arithmetic_verified": true
+        },
+        "is_sample": true,
+        "summary": "ใบเสนอราคางานรีโนเวทห้องครัว (เอกสารสมมติ) ยอดงวดรวมตรงกับยอดสัญญา แต่ยังมีรายการที่ควรทบทวนก่อนโอนมัดจำ",
+        "findings": [
+          {
+            "id": "F001",
+            "dimension": "deposit",
+            "status": "needs_attention",
+            "title": "ยังไม่พบรายละเอียดรองรับการจ่ายล่วงหน้า",
+            "reason": "เอกสารระบุมัดจำ 50% ของยอดรวม แต่ไม่พบรายการวัสดุหรือเกณฑ์ส่งมอบที่ผูกกับเงินก้อนนี้",
+            "document_evidence": [
+              {
+                "page": 2,
+                "quote": "งวดที่ 1 มัดจำ 100,000 บาท"
+              }
+            ],
+            "knowledge_citations": [],
+            "question_to_ask": "เงินก้อนนี้ใช้ซื้อวัสดุอะไร และมีหลักฐานการจัดซื้อ/ส่งมอบอย่างไร",
+            "suggested_action": "ขอรายการวัสดุและหลักฐานการสั่งซื้อก่อนยืนยันเงื่อนไขจ่ายล่วงหน้า",
+            "needs_professional_review": false
+          },
+          {
+            "id": "F002",
+            "dimension": "dates",
+            "status": "missing_information",
+            "title": "ไม่พบกำหนดวันแล้วเสร็จ",
+            "reason": "ไม่พบวันเริ่มงาน วันส่งมอบ หรือเงื่อนไขการขยายเวลาในเอกสารที่อ่านได้",
+            "document_evidence": [],
+            "knowledge_citations": [],
+            "question_to_ask": "ขอวันเริ่ม–วันส่งมอบ และเงื่อนไขที่ขยายเวลาได้",
+            "suggested_action": "ระบุวันเริ่ม วันส่งมอบ และเหตุที่ขยายเวลาได้ไว้ในเอกสาร",
+            "needs_professional_review": false
+          },
+          {
+            "id": "F003",
+            "dimension": "acceptance",
+            "status": "missing_information",
+            "title": "ยังไม่พบเกณฑ์ตรวจรับก่อนเรียกเก็บงวดที่ 2",
+            "reason": "งวดที่ 2 อ้างอิง “เมื่อติดตั้งตู้” แต่ไม่ระบุว่าตรวจรับอะไร โดยใคร และแก้ไขงานอย่างไรหากไม่ผ่าน",
+            "document_evidence": [
+              {
+                "page": 2,
+                "quote": "งวดที่ 2 60,000 บาท เมื่อติดตั้งตู้"
+              }
+            ],
+            "knowledge_citations": [],
+            "question_to_ask": "การติดตั้งตู้ถือว่าเสร็จเมื่อไร และถ้าพบจุดต้องแก้ จะแก้ก่อนหรือหลังจ่ายงวดนี้",
+            "suggested_action": "เพิ่มรายการตรวจรับ (เช่น ระดับ บานพับ รอยต่อ) ที่ทั้งสองฝ่ายยืนยันร่วมกัน",
+            "needs_professional_review": false
+          },
+          {
+            "id": "F004",
+            "dimension": "money",
+            "status": "present_in_document",
+            "title": "ผลรวมงวดเท่ากับยอดสัญญา",
+            "reason": "100,000 + 60,000 + 40,000 = 200,000 บาท (ตรวจด้วยโค้ด) — พบข้อมูลเท่านั้น ไม่ได้รับรองความถูกต้องของราคาหรืองาน",
+            "document_evidence": [
+              {
+                "page": 2,
+                "quote": "ยอดรวม 200,000 บาท"
+              }
+            ],
+            "knowledge_citations": [],
+            "needs_professional_review": false
+          }
+        ],
+        "missing_information": [
+          "กำหนดวันแล้วเสร็จ",
+          "เกณฑ์ตรวจรับงาน",
+          "เงื่อนไขการรับประกันงาน"
+        ],
+        "limitations": [
+          "ตัวอย่างนี้ใช้เอกสารสมมติและผลลัพธ์ที่คำนวณไว้ล่วงหน้า ไม่ได้ส่งให้ AI วิเคราะห์",
+          "ไม่ใช่คำปรึกษาทางกฎหมายหรือผลตรวจของวิศวกร และไม่ได้รับรองคุณภาพงานหรือราคา"
+        ]
+      }
+    },
+    "en": {
+      "title": "Quotation — kitchen renovation (fictional)",
+      "summary": "A kitchen-renovation quotation (fictional). The milestones add up to the contract total, but some items are worth reviewing before paying the deposit.",
+      "precomputed_result_json": {
+        "schema_version": "1.0",
+        "analysis_id": "sample-kitchen-001",
+        "document_type": "quotation",
+        "document_read_status": "complete",
+        "amounts": {
+          "contract_total_thb": 200000,
+          "listed_milestones_total_thb": 200000,
+          "advance_thb": 100000,
+          "advance_ratio": 0.5,
+          "arithmetic_verified": true
+        },
+        "is_sample": true,
+        "summary": "A kitchen-renovation quotation (fictional). The milestones add up to the contract total, but some items are worth reviewing before paying the deposit.",
+        "findings": [
+          {
+            "id": "F001",
+            "dimension": "deposit",
+            "status": "needs_attention",
+            "title": "No details found supporting the advance payment",
+            "reason": "The document asks for 50% of the total as a deposit, but no materials list or deliverable is tied to that payment.",
+            "document_evidence": [
+              {
+                "page": 2,
+                "quote": "Milestone 1: deposit 100,000 THB"
+              }
+            ],
+            "knowledge_citations": [],
+            "question_to_ask": "What materials does this payment buy, and what proof of purchase or delivery will there be?",
+            "suggested_action": "Ask for the materials list and purchase evidence before agreeing to the advance payment.",
+            "needs_professional_review": false
+          },
+          {
+            "id": "F002",
+            "dimension": "dates",
+            "status": "missing_information",
+            "title": "No completion date found",
+            "reason": "No start date, handover date or extension conditions were found in the readable document.",
+            "document_evidence": [],
+            "knowledge_citations": [],
+            "question_to_ask": "Ask for start and handover dates, and the conditions under which they can be extended.",
+            "suggested_action": "Write the start date, handover date and allowed reasons for delay into the document.",
+            "needs_professional_review": false
+          },
+          {
+            "id": "F003",
+            "dimension": "acceptance",
+            "status": "missing_information",
+            "title": "No sign-off criteria before milestone 2 is billed",
+            "reason": "Milestone 2 is due “on cabinet install”, but it does not say what is checked, by whom, or how defects are fixed.",
+            "document_evidence": [
+              {
+                "page": 2,
+                "quote": "Milestone 2: 60,000 THB on cabinet install"
+              }
+            ],
+            "knowledge_citations": [],
+            "question_to_ask": "When does the install count as done — and if something needs fixing, is it fixed before or after this payment?",
+            "suggested_action": "Add a short sign-off checklist (levels, hinges, joints) that both sides confirm.",
+            "needs_professional_review": false
+          },
+          {
+            "id": "F004",
+            "dimension": "money",
+            "status": "present_in_document",
+            "title": "Milestones add up to the contract total",
+            "reason": "100,000 + 60,000 + 40,000 = 200,000 THB (checked by code) — information found only; this does not certify the price or the work.",
+            "document_evidence": [
+              {
+                "page": 2,
+                "quote": "Total 200,000 THB"
+              }
+            ],
+            "knowledge_citations": [],
+            "needs_professional_review": false
+          }
+        ],
+        "missing_information": [
+          "Completion date",
+          "Sign-off criteria",
+          "Warranty terms"
+        ],
+        "limitations": [
+          "This sample uses a fictional document and a precomputed result. Nothing was sent to an AI.",
+          "Not legal advice or an engineer's inspection, and it does not certify the quality of the work or the price."
+        ]
+      }
+    }
+  },
+  "retention_policies": [
+    {
+      "policy_key": "demo_documents",
+      "data_category": "demo",
+      "trigger_event": "created",
+      "policy_state": "draft",
+      "legal_basis_note": "TODO: decide the temporary retention period for /ai-check uploads before accepting real files (context.md §6 step 12)."
+    },
+    {
+      "policy_key": "analysis_results",
+      "data_category": "analysis",
+      "trigger_event": "completed",
+      "policy_state": "draft",
+      "legal_basis_note": "TODO: decide how long reports/findings are kept for anonymous checks."
+    },
+    {
+      "policy_key": "analytics_events",
+      "data_category": "analytics",
+      "trigger_event": "created",
+      "policy_state": "draft",
+      "legal_basis_note": "TODO: anonymous funnel events — short TTL, no PII."
+    }
+  ]
+}

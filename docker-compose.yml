@@ -4,7 +4,7 @@
 
 services:
   postgres:
-    image: postgres:17-alpine
+    image: pgvector/pgvector:pg17
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-longrak}
@@ -29,6 +29,7 @@ services:
     env_file: .env
     environment:
       DATABASE_CLIENT: postgres
+      KB_EMBEDDING_DIMENSIONS: ${KB_EMBEDDING_DIMENSIONS:-}
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
     volumes:
@@ -47,6 +48,12 @@ services:
     restart: unless-stopped
     environment:
       NUXT_PUBLIC_API_BASE: ${PUBLIC_API_URL:-http://localhost:1337}
+      NUXT_N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-}
+      NUXT_N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET:-}
+      NUXT_N8N_PROJECT_WEBHOOK_URL: ${N8N_PROJECT_WEBHOOK_URL:-}
+      NUXT_STRAPI_URL: http://server:1337
+      NUXT_STRAPI_TOKEN: ${STRAPI_WEBSITE_TOKEN:-}
+      NUXT_IP_HASH_SALT: ${IP_HASH_SALT:-}
     ports:
       - "${WEB_PORT:-3000}:3000"
     depends_on:

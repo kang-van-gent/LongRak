@@ -31,6 +31,18 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    // Server-only (never sent to the browser). The /ai-check page posts to /api/ai-check,
+    // which forwards to this n8n webhook. Empty = analysis not enabled yet (the page says so).
+    n8nWebhookUrl: '', // NUXT_N8N_WEBHOOK_URL
+    n8nWebhookSecret: '', // NUXT_N8N_WEBHOOK_SECRET — sent as the X-LongRak-Secret header (both webhooks)
+    // LongRak Strapi API (server/), called server-side only. Token = Strapi API token of type
+    // "Custom" with just: Lead → submit, Analysis-session → record. Empty = not connected.
+    strapiUrl: '', // NUXT_STRAPI_URL, e.g. http://server:1337 inside docker compose
+    strapiToken: '', // NUXT_STRAPI_TOKEN
+    ipHashSalt: '', // NUXT_IP_HASH_SALT — salt for hashing visitor IPs in consent receipts
+    // "Request a project" after a check (email + role + analysis id). Empty = not enabled yet.
+    n8nProjectWebhookUrl: '', // NUXT_N8N_PROJECT_WEBHOOK_URL
+    n8nTimeoutMs: 120000, // NUXT_N8N_TIMEOUT_MS
     public: {
       // Strapi API base URL, overridden by NUXT_PUBLIC_API_BASE at runtime
       apiBase: '',

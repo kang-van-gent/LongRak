@@ -1,0 +1,81 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_kb_sources",
+  "info": {
+    "singularName": "kb-source",
+    "pluralName": "kb-sources",
+    "displayName": "KB Source",
+    "description": "Curated knowledge source. Existence ≠ approved applicability."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "source_key": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "publisher": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string"
+    },
+    "source_kind": {
+      "type": "enumeration",
+      "enum": [
+        "law",
+        "regulation",
+        "guideline",
+        "checklist",
+        "template",
+        "technical_reference",
+        "case_study"
+      ],
+      "required": true
+    },
+    "jurisdiction": {
+      "type": "string",
+      "default": "TH"
+    },
+    "license_note": {
+      "type": "text"
+    },
+    "topic_tags": {
+      "type": "json"
+    },
+    "source_state": {
+      "type": "enumeration",
+      "enum": [
+        "discovered",
+        "pending_review",
+        "approved",
+        "deprecated",
+        "revoked"
+      ],
+      "required": true,
+      "default": "discovered"
+    },
+    "last_checked_at": {
+      "type": "datetime"
+    },
+    "kb_source_versions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::kb-source-version.kb-source-version",
+      "mappedBy": "kb_source"
+    }
+  }
+}

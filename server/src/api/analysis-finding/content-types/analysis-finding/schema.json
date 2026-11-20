@@ -1,0 +1,111 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_analysis_findings",
+  "info": {
+    "singularName": "analysis-finding",
+    "pluralName": "analysis-findings",
+    "displayName": "Analysis Finding",
+    "description": "One observation in a report. Not a legal judgment; no risk percentages."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "finding_code": {
+      "type": "string"
+    },
+    "dimension": {
+      "type": "enumeration",
+      "enum": [
+        "parties",
+        "scope",
+        "materials",
+        "money",
+        "deposit",
+        "milestones",
+        "dates",
+        "acceptance",
+        "change_control",
+        "warranty",
+        "cancellation",
+        "evidence",
+        "signature",
+        "other"
+      ],
+      "required": true,
+      "default": "other"
+    },
+    "finding_state": {
+      "type": "enumeration",
+      "enum": [
+        "needs_attention",
+        "missing_information",
+        "present_in_document",
+        "not_applicable",
+        "unable_to_assess"
+      ],
+      "required": true
+    },
+    "severity": {
+      "type": "enumeration",
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "review_required"
+      ],
+      "default": "info"
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "explanation": {
+      "type": "text"
+    },
+    "confidence_level": {
+      "type": "enumeration",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "unknown"
+      ],
+      "default": "unknown"
+    },
+    "needs_professional_review": {
+      "type": "boolean",
+      "default": false
+    },
+    "source_quote_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "analysis_run": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::analysis-run.analysis-run",
+      "inversedBy": "analysis_findings"
+    },
+    "finding_citations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::finding-citation.finding-citation",
+      "mappedBy": "analysis_finding"
+    },
+    "recommended_actions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::recommended-action.recommended-action",
+      "mappedBy": "analysis_finding"
+    }
+  }
+}

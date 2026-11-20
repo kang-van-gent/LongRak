@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_website_testimonials",
+  "info": {
+    "displayName": "Testimonial",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "quote": {
+      "type": "text",
+      "required": true
+    },
+    "person_display": {
+      "type": "string"
+    },
+    "role_display": {
+      "type": "string"
+    },
+    "permission_confirmed": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    }
+  }
+}

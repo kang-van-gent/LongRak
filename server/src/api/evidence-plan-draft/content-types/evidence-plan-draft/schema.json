@@ -1,0 +1,65 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_evidence_plan_drafts",
+  "info": {
+    "singularName": "evidence-plan-draft",
+    "pluralName": "evidence-plan-drafts",
+    "displayName": "Evidence Plan Draft",
+    "description": "AI-suggested list of evidence to prepare — needs party review before it binds anything"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "plan_title": {
+      "type": "string",
+      "required": true
+    },
+    "generated_from_run_public_id": {
+      "type": "string",
+      "maxLength": 36
+    },
+    "generation_state": {
+      "type": "enumeration",
+      "enum": [
+        "proposed",
+        "reviewed",
+        "converted",
+        "discarded"
+      ],
+      "default": "proposed"
+    },
+    "work_type": {
+      "type": "string"
+    },
+    "total_expected_milestones": {
+      "type": "integer"
+    },
+    "plan_json_digest": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "created_at_business": {
+      "type": "datetime"
+    },
+    "analysis_run": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::analysis-run.analysis-run",
+      "inversedBy": "evidence_plan_drafts"
+    },
+    "evidence_plan_items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::evidence-plan-item.evidence-plan-item",
+      "mappedBy": "evidence_plan_draft"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_website_steps",
+  "info": {
+    "displayName": "Step",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "step_no": {
+      "type": "integer"
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "body": {
+      "type": "text"
+    },
+    "tag": {
+      "type": "string"
+    }
+  }
+}

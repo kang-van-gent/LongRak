@@ -1,0 +1,81 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_risk_rule_versions",
+  "info": {
+    "singularName": "risk-rule-version",
+    "pluralName": "risk-rule-versions",
+    "displayName": "Risk Rule Version",
+    "description": "Versioned rule configuration (declarative only)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "version_label": {
+      "type": "string",
+      "required": true
+    },
+    "logic_kind": {
+      "type": "enumeration",
+      "enum": [
+        "code",
+        "config",
+        "json_logic"
+      ],
+      "required": true,
+      "default": "code"
+    },
+    "logic_config": {
+      "type": "json"
+    },
+    "message_template_th": {
+      "type": "text"
+    },
+    "knowledge_source_keys": {
+      "type": "json"
+    },
+    "severity_default": {
+      "type": "enumeration",
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "review_required"
+      ],
+      "default": "info"
+    },
+    "effective_at": {
+      "type": "datetime"
+    },
+    "retired_at": {
+      "type": "datetime"
+    },
+    "reviewer_snapshot": {
+      "type": "string"
+    },
+    "approval_state": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "approved",
+        "retired"
+      ],
+      "required": true,
+      "default": "draft"
+    },
+    "risk_rule": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::risk-rule.risk-rule",
+      "inversedBy": "risk_rule_versions"
+    }
+  }
+}

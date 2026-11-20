@@ -1,12 +1,12 @@
 @import "tailwindcss";
 @import "lenis/dist/lenis.css";
 
-/* Landscape phones and other very short viewports (e.g. 844×390) */
-@custom-variant short (@media (max-height: 520px) and (orientation: landscape));
 /* Short portrait phones (iPhone SE, 360×740 Androids) */
 @custom-variant compact (@media (max-height: 740px));
 /* Very short portrait phones (iPhone SE 1st gen, 320×568) */
 @custom-variant tiny (@media (max-height: 640px) and (orientation: portrait));
+/* Landscape phones (e.g. 844×390). Registered last so it wins over compact/tiny. */
+@custom-variant short (@media (max-height: 520px) and (orientation: landscape));
 
 /* ---------------------------------------------------------------
    LongRak design tokens (approximated from the master logo; see context.md §2)
@@ -196,6 +196,10 @@ em {
   0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
   50% { opacity: 0.55; transform: scale(0.82) rotate(18deg); }
 }
+@keyframes indeterminate {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(320%); }
+}
 @keyframes scan-glow {
   0%, 100% { opacity: 0.7; }
   50% { opacity: 1; }
@@ -229,6 +233,12 @@ details > summary::-webkit-details-marker {
 }
 details[open] .faq-plus {
   transform: rotate(45deg);
+}
+
+/* Printing / saving the AI report as PDF: content only */
+@media print {
+  header, footer, .grain-overlay { display: none !important; }
+  main { padding-top: 0 !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {

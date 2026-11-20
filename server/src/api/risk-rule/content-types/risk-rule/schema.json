@@ -1,0 +1,73 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_risk_rules",
+  "info": {
+    "singularName": "risk-rule",
+    "pluralName": "risk-rules",
+    "displayName": "Risk Rule",
+    "description": "Stable rule identity (logic lives in versions / repo code — never eval CMS code)"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "rule_code": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "dimension": {
+      "type": "enumeration",
+      "enum": [
+        "parties",
+        "scope",
+        "materials",
+        "money",
+        "deposit",
+        "milestones",
+        "dates",
+        "acceptance",
+        "change_control",
+        "warranty",
+        "cancellation",
+        "evidence",
+        "signature",
+        "other"
+      ],
+      "required": true,
+      "default": "other"
+    },
+    "description_th": {
+      "type": "text"
+    },
+    "work_types": {
+      "type": "json"
+    },
+    "document_kinds": {
+      "type": "json"
+    },
+    "rule_state": {
+      "type": "enumeration",
+      "enum": [
+        "active",
+        "retired",
+        "draft"
+      ],
+      "required": true,
+      "default": "draft"
+    },
+    "risk_rule_versions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::risk-rule-version.risk-rule-version",
+      "mappedBy": "risk_rule"
+    }
+  }
+}

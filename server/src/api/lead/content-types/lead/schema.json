@@ -1,0 +1,97 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_leads",
+  "info": {
+    "singularName": "lead",
+    "pluralName": "leads",
+    "displayName": "Lead",
+    "description": "Contact / pilot / project requests. Contact data is private; a lead is NOT consent to use documents for AI training."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "name": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "email",
+      "private": true
+    },
+    "phone_encrypted": {
+      "type": "string",
+      "private": true
+    },
+    "line_handle": {
+      "type": "string",
+      "private": true
+    },
+    "lead_type": {
+      "type": "enumeration",
+      "enum": [
+        "homeowner",
+        "contractor",
+        "interior",
+        "inspector",
+        "other"
+      ],
+      "required": true,
+      "default": "other"
+    },
+    "lead_source": {
+      "type": "string"
+    },
+    "interest_note": {
+      "type": "text"
+    },
+    "contact_permission": {
+      "type": "boolean",
+      "default": false
+    },
+    "lifecycle_state": {
+      "type": "enumeration",
+      "enum": [
+        "new",
+        "contacted",
+        "qualified",
+        "closed"
+      ],
+      "required": true,
+      "default": "new"
+    },
+    "created_from": {
+      "type": "string"
+    },
+    "related_analysis_public_id": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "preferred_language": {
+      "type": "enumeration",
+      "enum": [
+        "th",
+        "en"
+      ],
+      "default": "th"
+    },
+    "pilot_applications": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::pilot-application.pilot-application",
+      "mappedBy": "lead"
+    },
+    "consent_receipts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::consent-receipt.consent-receipt",
+      "mappedBy": "lead"
+    }
+  }
+}

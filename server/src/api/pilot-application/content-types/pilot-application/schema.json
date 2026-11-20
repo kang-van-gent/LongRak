@@ -1,0 +1,64 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_pilot_applications",
+  "info": {
+    "singularName": "pilot-application",
+    "pluralName": "pilot-applications",
+    "displayName": "Pilot Application",
+    "description": "Design-partner / pilot applications"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "business_name": {
+      "type": "string"
+    },
+    "work_type": {
+      "type": "enumeration",
+      "enum": [
+        "builtin",
+        "renovation",
+        "construction",
+        "other"
+      ],
+      "default": "other"
+    },
+    "expected_project_count": {
+      "type": "integer"
+    },
+    "expected_start_date": {
+      "type": "date"
+    },
+    "goal": {
+      "type": "text"
+    },
+    "application_state": {
+      "type": "enumeration",
+      "enum": [
+        "new",
+        "screening",
+        "accepted",
+        "rejected"
+      ],
+      "required": true,
+      "default": "new"
+    },
+    "source": {
+      "type": "string"
+    },
+    "lead": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::lead.lead",
+      "inversedBy": "pilot_applications"
+    }
+  }
+}

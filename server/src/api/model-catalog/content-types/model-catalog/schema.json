@@ -1,0 +1,53 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_model_catalog_items",
+  "info": {
+    "singularName": "model-catalog",
+    "pluralName": "model-catalog-items",
+    "displayName": "Model Catalog",
+    "description": "Model names/metadata only — endpoints and keys stay in ENV"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "provider_key": {
+      "type": "string",
+      "required": true
+    },
+    "model_id": {
+      "type": "string",
+      "required": true
+    },
+    "purpose": {
+      "type": "enumeration",
+      "enum": [
+        "generation",
+        "embedding",
+        "reranking",
+        "ocr"
+      ],
+      "required": true
+    },
+    "context_limit": {
+      "type": "integer"
+    },
+    "embedding_dimensions": {
+      "type": "integer"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false
+    },
+    "model_notes": {
+      "type": "text"
+    }
+  }
+}

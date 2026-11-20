@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_evaluation_cases",
+  "info": {
+    "singularName": "evaluation-case",
+    "pluralName": "evaluation-cases",
+    "displayName": "Evaluation Case",
+    "description": "Synthetic/anonymised test documents with expected results"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "case_code": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "case_kind": {
+      "type": "enumeration",
+      "enum": [
+        "clean",
+        "missing",
+        "ambiguous",
+        "adversarial",
+        "privacy"
+      ],
+      "required": true
+    },
+    "input_fixture_key_private": {
+      "type": "string",
+      "private": true
+    },
+    "expected_fields": {
+      "type": "json"
+    },
+    "expected_findings": {
+      "type": "json"
+    },
+    "expert_approved_at": {
+      "type": "datetime"
+    },
+    "fixture_contains_real_data": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

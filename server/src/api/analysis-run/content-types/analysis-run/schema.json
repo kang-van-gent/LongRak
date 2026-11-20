@@ -1,0 +1,117 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_analysis_runs",
+  "info": {
+    "singularName": "analysis-run",
+    "pluralName": "analysis-runs",
+    "displayName": "Analysis Run",
+    "description": "One attempt at a job — provenance of model, prompt, rules and knowledge snapshot"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "run_no": {
+      "type": "integer",
+      "default": 1
+    },
+    "run_state": {
+      "type": "enumeration",
+      "enum": [
+        "running",
+        "completed",
+        "failed",
+        "invalidated"
+      ],
+      "required": true,
+      "default": "running"
+    },
+    "model_provider_key": {
+      "type": "string"
+    },
+    "model_id": {
+      "type": "string"
+    },
+    "model_config_digest": {
+      "type": "string"
+    },
+    "prompt_version_key": {
+      "type": "string"
+    },
+    "ruleset_version_key": {
+      "type": "string"
+    },
+    "knowledge_snapshot_key": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "output_language": {
+      "type": "enumeration",
+      "enum": [
+        "th",
+        "en"
+      ],
+      "default": "th"
+    },
+    "document_read_status": {
+      "type": "enumeration",
+      "enum": [
+        "complete",
+        "partial",
+        "unreadable"
+      ],
+      "default": "complete"
+    },
+    "started_at": {
+      "type": "datetime"
+    },
+    "completed_at": {
+      "type": "datetime"
+    },
+    "latency_ms": {
+      "type": "integer"
+    },
+    "input_fingerprint_sha256": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "result_json_private": {
+      "type": "json",
+      "private": true
+    },
+    "total_tokens": {
+      "type": "integer"
+    },
+    "estimated_cost_thb": {
+      "type": "decimal"
+    },
+    "analysis_job": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::analysis-job.analysis-job",
+      "inversedBy": "analysis_runs"
+    },
+    "analysis_findings": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::analysis-finding.analysis-finding",
+      "mappedBy": "analysis_run"
+    },
+    "evidence_plan_drafts": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::evidence-plan-draft.evidence-plan-draft",
+      "mappedBy": "analysis_run"
+    }
+  }
+}

@@ -51,27 +51,35 @@ export function inOutTimeline(trigger: Element | string, start = 'top 92%', end 
 
 /**
  * Smooth anchor scrolling through Lenis when available.
- * Pinned scenes start fully "closed" at their top edge, so landing there shows
- * nothing. A section can set `data-anchor-progress="0.7"` to land at that point
- * of its pinned timeline instead (i.e. with the content already revealed).
+ * Pinned sections are targeted at their pin start. A section can also set
+ * `data-anchor-progress="0.7"` to land at that point of its pinned timeline
+ * instead (i.e. with the content already revealed).
  */
 export function useSmoothScroll() {
   const { $lenis } = useNuxtApp()
-  return (target: string) => {
+  return (target: string, opts: { immediate?: boolean; offset?: number } = {}) => {
     const el = document.querySelector<HTMLElement>(target)
     if (!el) return
-    const lenis = $lenis as { scrollTo: (t: HTMLElement | number, o?: object) => void } | null
+    const lenis = $lenis as { scrollTo: (t: HTMLElement | number, o?: object) => void; resize: () => void } | null
+    // after a page change Lenis may still hold the previous page's height (and clamp to it)
+    lenis?.resize()
 
     let dest: HTMLElement | number = el
-    const progress = Number.parseFloat(el.dataset.anchorProgress ?? '')
-    if (!Number.isNaN(progress)) {
-      const st = ScrollTrigger.getAll().find((t) => t.trigger === el && t.pin)
-      if (st) dest = st.start + (st.end - st.start) * progress
+    // A pinned section's element no longer sits where its scene begins once you have
+    // scrolled past it (it rests at the END of its pin range, already animated out),
+    // so always aim at the pin's start, plus an optional data-anchor-progress offset.
+    const st = ScrollTrigger.getAll().find((t) => t.trigger === el && t.pin)
+    if (st) {
+      const progress = Number.parseFloat(el.dataset.anchorProgress ?? '0') || 0
+      dest = st.start + (st.end - st.start) * progress
     }
+    // The page top is always 0 — never "slightly below" because of rounding/offsets
+    if (target === '#top') dest = 0
 
-    if (lenis) lenis.scrollTo(dest, { offset: 0, duration: 1.8 })
-    else if (typeof dest === 'number') window.scrollTo({ top: dest, behavior: 'smooth' })
-    else dest.scrollIntoView({ behavior: 'smooth' })
+    const behavior = opts.immediate ? 'instant' : 'smooth'
+    if (lenis) lenis.scrollTo(dest, opts.immediate ? { immediate: true, force: true } : { offset: opts.offset ?? 0, duration: 1.8 })
+    else if (typeof dest === 'number') window.scrollTo({ top: dest, behavior })
+    else dest.scrollIntoView({ behavior })
     history.replaceState(null, '', target)
   }
 }

@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_website_cta_sections",
+  "info": {
+    "displayName": "CTA Section",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "body": {
+      "type": "text"
+    },
+    "cta_label": {
+      "type": "string"
+    },
+    "cta_url": {
+      "type": "string"
+    }
+  }
+}

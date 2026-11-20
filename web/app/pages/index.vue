@@ -1,4 +1,18 @@
 <script setup lang="ts">
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+const route = useRoute()
+const scrollTo = useSmoothScroll()
+onMounted(() => {
+  if (!route.hash) return
+  // wait for fonts + every section's pins to exist, then jump (pinned scenes need real positions)
+  const land = () => {
+    ScrollTrigger.refresh()
+    scrollTo(route.hash, { immediate: true })
+  }
+  ;(document.fonts?.ready ?? Promise.resolve()).then(() => requestAnimationFrame(() => requestAnimationFrame(land)))
+})
+
 const t = useCopy({
   th: {
     title: 'LongRak (หลงรัก) — ข้อตกลงชัดเจน หลักฐานตรวจสอบได้',

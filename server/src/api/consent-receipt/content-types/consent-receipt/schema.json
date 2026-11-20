@@ -1,0 +1,83 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_consent_receipts",
+  "info": {
+    "singularName": "consent-receipt",
+    "pluralName": "consent-receipts",
+    "displayName": "Consent Receipt",
+    "description": "What was agreed, when, against which policy text"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "purpose_code": {
+      "type": "string",
+      "required": true
+    },
+    "legal_basis_record": {
+      "type": "string"
+    },
+    "choice": {
+      "type": "enumeration",
+      "enum": [
+        "accepted",
+        "declined",
+        "withdrawn",
+        "not_applicable"
+      ],
+      "required": true
+    },
+    "captured_at": {
+      "type": "datetime",
+      "required": true
+    },
+    "capture_method": {
+      "type": "enumeration",
+      "enum": [
+        "web_checkbox",
+        "otp",
+        "account",
+        "other"
+      ],
+      "default": "web_checkbox"
+    },
+    "policy_sha256": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "ip_hash": {
+      "type": "string",
+      "private": true
+    },
+    "user_agent_digest": {
+      "type": "string",
+      "private": true
+    },
+    "policy_version": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::policy-version.policy-version",
+      "inversedBy": "consent_receipts"
+    },
+    "analysis_session": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::analysis-session.analysis-session",
+      "inversedBy": "consent_receipts"
+    },
+    "lead": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::lead.lead",
+      "inversedBy": "consent_receipts"
+    }
+  }
+}

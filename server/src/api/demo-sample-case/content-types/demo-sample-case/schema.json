@@ -1,0 +1,117 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_demo_sample_cases",
+  "info": {
+    "singularName": "demo-sample-case",
+    "pluralName": "demo-sample-cases",
+    "displayName": "Demo Sample Case",
+    "description": "Fictional sample used by /ai-check without any AI call. Must contain synthetic people and money only."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "work_type": {
+      "type": "enumeration",
+      "enum": [
+        "builtin",
+        "renovation",
+        "other"
+      ],
+      "default": "renovation",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "summary": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "sample_document_file": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files"
+      ],
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "precomputed_result_json": {
+      "type": "json",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "sample_version": {
+      "type": "string",
+      "default": "1",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    },
+    "sample_state": {
+      "type": "enumeration",
+      "enum": [
+        "draft",
+        "active",
+        "retired"
+      ],
+      "required": true,
+      "default": "draft",
+      "pluginOptions": {
+        "i18n": {
+          "localized": false
+        }
+      }
+    }
+  }
+}

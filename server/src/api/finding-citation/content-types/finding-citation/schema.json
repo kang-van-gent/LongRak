@@ -1,0 +1,76 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lr_finding_citations",
+  "info": {
+    "singularName": "finding-citation",
+    "pluralName": "finding-citations",
+    "displayName": "Finding Citation",
+    "description": "Where a finding is grounded: the user document, a knowledge source, or a rule"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "public_id": {
+      "type": "string",
+      "unique": true,
+      "minLength": 36,
+      "maxLength": 36
+    },
+    "citation_kind": {
+      "type": "enumeration",
+      "enum": [
+        "user_document",
+        "knowledge_source",
+        "rule"
+      ],
+      "required": true
+    },
+    "input_page": {
+      "type": "integer"
+    },
+    "quote_excerpt": {
+      "type": "text",
+      "private": true
+    },
+    "source_section": {
+      "type": "string"
+    },
+    "citation_state": {
+      "type": "enumeration",
+      "enum": [
+        "verified",
+        "partially_verified",
+        "unverified"
+      ],
+      "default": "unverified"
+    },
+    "citation_order": {
+      "type": "integer",
+      "default": 0
+    },
+    "kb_chunk_public_id": {
+      "type": "string",
+      "maxLength": 36
+    },
+    "analysis_finding": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::analysis-finding.analysis-finding",
+      "inversedBy": "finding_citations"
+    },
+    "analysis_input": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::analysis-input.analysis-input",
+      "inversedBy": "finding_citations"
+    },
+    "kb_source_version": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::kb-source-version.kb-source-version",
+      "inversedBy": "finding_citations"
+    }
+  }
+}

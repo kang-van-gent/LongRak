@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_website_comparison_rows",
+  "info": {
+    "displayName": "Comparison Row",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "does": {
+      "type": "boolean",
+      "default": true
+    },
+    "note": {
+      "type": "text"
+    }
+  }
+}
