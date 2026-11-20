@@ -2,6 +2,7 @@
 
 const { randomUUID } = require('node:crypto');
 const { seedW0 } = require('./seed/seed');
+const automation = require('./automation');
 
 /**
  * Content types whose records carry a server-generated `public_id` (UUID).
@@ -66,6 +67,8 @@ module.exports = {
       }
       return next();
     });
+    // LR-W0-01: /internal/automation/* for n8n (service token, outside the Content API)
+    automation.register(strapi);
   },
 
   async bootstrap({ strapi }) {
@@ -74,5 +77,11 @@ module.exports = {
     await ensureRolePermissions(strapi, 'authenticated', AUTHENTICATED_ACTIONS);
     // Seed website content once, into empty tables only. Set LONGRAK_SEED=false to skip.
     if (process.env.LONGRAK_SEED !== 'false') await seedW0(strapi);
+    // LR-W0-01: deliver committed outbox events to n8n
+    automation.bootstrap(strapi);
+  },
+
+  destroy({ strapi }) {
+    automation.destroy(strapi);
   },
 };
