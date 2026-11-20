@@ -1,0 +1,27 @@
+# Expose ONLY the machine-to-machine routes to the n8n host (Hostinger), nothing else.
+# Strapi listens on 127.0.0.1:1337 (deploy/docker-compose.prod.yml).
+# Replace the hostnames; 187.127.114.29 = n8n-trdr.srv1947223.hstgr.cloud (re-check: dig +short).
+
+# 1) Dedicated host for n8n → Strapi:  https://automation.<your-domain>
+automation.example.com {
+	@n8n {
+		remote_ip 187.127.114.29
+		path /internal/automation/* /internal/ai/*
+	}
+	handle @n8n {
+		reverse_proxy 127.0.0.1:1337
+	}
+	handle {
+		respond 404
+	}
+}
+
+# 2) The public API host must never forward /internal/* (defence in depth on top of the tokens)
+api.example.com {
+	handle /internal/* {
+		respond 404
+	}
+	handle {
+		reverse_proxy 127.0.0.1:1337
+	}
+}

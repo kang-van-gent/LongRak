@@ -13,6 +13,7 @@ const { createHash, randomUUID } = require('node:crypto');
 
 const SERVICE_TOKEN = 'test-internal-service-token';
 const WEBHOOK_SECRET = 'test-dispatcher-secret';
+const AI_TOKEN = 'test-ai-service-token';
 
 function configureEnv(webhookUrl) {
   const url = new URL(process.env.TEST_DATABASE_URL);
@@ -37,6 +38,8 @@ function configureEnv(webhookUrl) {
     LONGRAK_N8N_EVENT_WEBHOOK_SECRET: WEBHOOK_SECRET,
     LONGRAK_OUTBOX_DISPATCHER: 'false', // tests drive dispatcher.tick() themselves
     LONGRAK_AI_DAILY_JOB_QUOTA: '1000',
+    AI_PROVIDER: 'mock',
+    LONGRAK_AI_SERVICE_TOKEN: AI_TOKEN,
     LONGRAK_PUBLIC_WRITE_LIMIT: '100000',
     LONGRAK_PUBLIC_READ_LIMIT: '100000',
     STRAPI_TELEMETRY_DISABLED: 'true',
@@ -168,4 +171,4 @@ function client(base) {
   return { call, n8nRun };
 }
 
-module.exports = { bootStrapi, fixtures, client, SERVICE_TOKEN, WEBHOOK_SECRET };
+module.exports = { bootStrapi, fixtures, client, SERVICE_TOKEN, WEBHOOK_SECRET, AI_TOKEN };

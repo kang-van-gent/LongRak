@@ -13,7 +13,8 @@
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",
     "upgrade:dry": "npx @strapi/upgrade latest --dry",
-    "test": "node --test --test-force-exit --test-concurrency=1 'tests/**/*.test.js'"
+    "test": "node --test --test-force-exit --test-concurrency=1 'tests/**/*.test.js'",
+    "fixture": "node scripts/lr-fixture.js"
   },
   "dependencies": {
     "@strapi/database": "5.62.0",

@@ -326,22 +326,28 @@ module.exports = function createJobService(strapi) {
     });
   }
 
-  /** Owner cancels a job that has not finished. Any later finalize gets 409 not_eligible. */
-  async function cancelJob(publicId, owner) {
+  /** Cancel any non-terminal job (row-locked). Later finalize/transition get 409 not_eligible. */
+  function cancelUnchecked(publicId, reason = 'cancel') {
     const now = new Date();
-    const job = await ownedJob(publicId, owner, now);
-    if (!job) return invalid(404, 'not_found');
     return repo.tx(async (k) => {
       const current = await lockedJob(k, publicId);
+      if (!current) return invalid(404, 'not_found');
       if (current.processing_state === 'cancelled') return ok({ job_public_id: publicId, processing_state: 'cancelled' });
       if (TERMINAL.has(current.processing_state)) return invalid(409, 'not_cancellable', { processing_state: current.processing_state });
       if (!(await repo.casJob(current, { processing_state: current.processing_state }, { processing_state: 'cancelled', finished_at: now }))) {
         return invalid(409, 'not_cancellable', { processing_state: (await repo.findJob(publicId)).processing_state });
       }
       await repo.setRunsState(current, ['running'], 'invalidated');
-      await repo.recordJobEvent(k, { job_public_id: publicId, from_state: current.processing_state, to_state: 'cancelled', reason: 'cancel', at: now });
+      await repo.recordJobEvent(k, { job_public_id: publicId, from_state: current.processing_state, to_state: 'cancelled', reason, at: now });
       return ok({ job_public_id: publicId, processing_state: 'cancelled' });
     });
+  }
+
+  /** Owner cancels a job that has not finished. */
+  async function cancelJob(publicId, owner) {
+    const job = await ownedJob(publicId, owner);
+    if (!job) return invalid(404, 'not_found');
+    return cancelUnchecked(publicId);
   }
 
   // --------------------------------------------------------------------------------------
@@ -700,7 +706,7 @@ module.exports = function createJobService(strapi) {
 
   return {
     // public
-    createJob, jobStatus, jobReport, cancelJob,
+    createJob, jobStatus, jobReport, cancelJob, cancelUnchecked,
     // internal
     claimEvent, claimJob, transitionJob, finalizeJob, failJob, finishEvent, reportIncident,
     // shared with the dispatcher

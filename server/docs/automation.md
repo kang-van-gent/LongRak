@@ -28,6 +28,8 @@ browser ──GET /api/longrak/ai/jobs/:id[/report]──▶ Strapi (owner check
 | `LONGRAK_AI_MAX_JOB_ATTEMPTS` | 3 | Processing attempts per job (first run + requeues + resumes). |
 | `LONGRAK_AI_MAX_FILES` / `_MAX_FILE_BYTES` / `_MAX_TOTAL_PAGES` | 3 / 15 MB / 30 | spec §5 W0 limits. |
 | `LONGRAK_AI_DAILY_JOB_QUOTA` | 3 | Jobs per `usage_quota_bucket` (else per session) per 24 h. |
+| `AI_PROVIDER` | — | `mock` = synthetic demo mode (mock AI service + fixtures). Empty in production. |
+| `LONGRAK_AI_SERVICE_TOKEN` | — | Bearer token for `/internal/ai/*` (mock). |
 | `LONGRAK_PUBLIC_WRITE_LIMIT` / `_READ_LIMIT` | 20 per 10 min / 120 per min | Per-IP, per instance. |
 
 ## Public API (owner)
@@ -87,6 +89,49 @@ Envelope (ids only — no file names, text, PII, URLs) with headers `<secret hea
 `LONGRAK_OUTBOX_MAX_ATTEMPTS` ⇒ `dead_lettered`, and a still-queued job is failed with
 `STAGE_UNAVAILABLE` so the user does not wait forever. Replay a dead letter by setting the row
 back to `pending` (claims are idempotent).
+
+## Synthetic demo mode: mock AI service + fixtures
+
+**Never with real customer documents.** Enabled only by `AI_PROVIDER=mock`.
+
+- **Mock AI service** (`src/automation/mock-ai.js`), mounted in Strapi at `/internal/ai/jobs/:id/…`
+  (`extract`, `apply-rules`, `retrieve-and-analyze`, `validate-and-build-plan`). Auth
+  `Authorization: Bearer <LONGRAK_AI_SERVICE_TOKEN>`. It reads no document and calls no model; it
+  persists a labelled synthetic run, findings and evidence plan so `/finalize` passes. It refuses
+  (403 `STAGE_INPUT_REJECTED`, `not_synthetic`) any job whose files lack `metadata_safe.synthetic=true`.
+  Idempotent: one run per job + input fingerprint + prompt version, one plan per run. Business
+  outcomes are 200 with a state field; outages are 5xx with `{error_code}`. The real AI service
+  will be a separate container — n8n then only changes the AI base URL.
+- **Fixtures** (`scripts/lr-fixture.js`), run with the server's environment (same database). The
+  running server's dispatcher delivers the event within `LONGRAK_OUTBOX_POLL_MS`:
+
+  ```bash
+  npm run fixture -w server -- list                     # local (server/.env)
+  npm run fixture -w server -- happy
+  npm run fixture -w server -- status <job_public_id>   # state, history, outbox, inbox
+  docker compose exec server node scripts/lr-fixture.js happy   # in Docker
+  ```
+
+  | Scenario | Expected end |
+  |---|---|
+  | `happy` | completed |
+  | `file_rejected` | extract `rejected` → fail `FILE_REJECTED` → failed |
+  | `unreadable` | extract `unreadable` → fail `DOCUMENT_UNREADABLE` → failed |
+  | `retryable_then_valid` | attempt 1: analyze 503 `AI_PROVIDER_UNAVAILABLE` → fail(retryable) → requeued; redelivered after ~15 s backoff → attempt 2 completed |
+  | `model_invalid_twice` | validate `invalid` twice (incl. regenerate) → fail `MODEL_OUTPUT_INVALID` → failed |
+  | `grounding_fail_at_finalize` | validate `valid` but an unverified quote is stored → finalize 422 `GROUNDING_VALIDATION_FAILED` → failed |
+  | `cancelled_mid_run` | job cancelled during analyze → next transition 409 `not_eligible` → stop; job cancelled (event closes on the next claim after the lease expires) |
+  | `duplicate_event` | the fixture itself sends the same `event_id` twice at once (the dispatcher does not send a third) → one execution claimed, the other `leased_to_other`; completed once |
+
+  `tests/synthetic-e2e.test.js` drives all of them through the same calls the n8n workflow makes.
+
+## Exposing the internal routes to n8n
+
+n8n (Hostinger) must reach `/internal/automation/*` and `/internal/ai/*`; nothing else of Strapi
+needs to be reachable from it. `deploy/Caddyfile.internal.example`: a dedicated host that proxies
+only those paths and only from the n8n host's IP, and a public API host that answers 404 on
+`/internal/*`. If n8n and Strapi end up on the same machine, use the Docker network instead
+(`http://server:1337`) and expose nothing.
 
 ## Migration notes (new tables)
 
