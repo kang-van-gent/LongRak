@@ -90,6 +90,12 @@
       "relation": "oneToMany",
       "target": "api::analysis-input.analysis-input",
       "mappedBy": "file_asset"
+    },
+    "analysis_session": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::analysis-session.analysis-session",
+      "inversedBy": "file_assets"
     }
   }
 }

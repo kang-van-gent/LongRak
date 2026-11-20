@@ -93,6 +93,12 @@
       "relation": "oneToMany",
       "target": "api::consent-receipt.consent-receipt",
       "mappedBy": "analysis_session"
+    },
+    "file_assets": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::file-asset.file-asset",
+      "mappedBy": "analysis_session"
     }
   }
 }

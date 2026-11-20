@@ -750,6 +750,12 @@ export interface ApiAnalysisJobAnalysisJob extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'quotation_check'>;
+    last_error_code: Schema.Attribute.String;
+    lease_token: Schema.Attribute.String &
+      Schema.Attribute.Private &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 36;
+      }>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -788,6 +794,11 @@ export interface ApiAnalysisJobAnalysisJob extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    workflow_run_id: Schema.Attribute.String &
+      Schema.Attribute.Private &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 120;
+      }>;
   };
 }
 
@@ -898,6 +909,10 @@ export interface ApiAnalysisSessionAnalysisSession
       Schema.Attribute.Private;
     deletion_requested_at: Schema.Attribute.DateTime;
     expires_at: Schema.Attribute.DateTime;
+    file_assets: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::file-asset.file-asset'
+    >;
     file_count: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -1483,6 +1498,10 @@ export interface ApiFileAssetFileAsset extends Struct.CollectionTypeSchema {
     analysis_inputs: Schema.Attribute.Relation<
       'oneToMany',
       'api::analysis-input.analysis-input'
+    >;
+    analysis_session: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::analysis-session.analysis-session'
     >;
     byte_size: Schema.Attribute.BigInteger;
     createdAt: Schema.Attribute.DateTime;
