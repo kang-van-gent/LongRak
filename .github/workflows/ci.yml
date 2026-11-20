@@ -27,6 +27,37 @@ jobs:
       - name: Build server, web, app
         run: npm run build
 
+  server-tests:
+    name: Server tests (PostgreSQL)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: longrak
+          POSTGRES_PASSWORD: longrak
+          POSTGRES_DB: longrak_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U longrak"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: LR-W0-01 backend tests (T06, T09, T10, T19 …)
+        run: npm test -w server
+        env:
+          TEST_DATABASE_URL: postgres://longrak:longrak@localhost:5432/longrak_test
+
   docker:
     name: Docker build (${{ matrix.service }})
     runs-on: ubuntu-latest
