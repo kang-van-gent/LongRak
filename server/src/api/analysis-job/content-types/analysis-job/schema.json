@@ -63,9 +63,15 @@
     "error_code": {
       "type": "string"
     },
+    "last_error_code": {
+      "type": "string"
+    },
     "idempotency_key_hash": {
       "type": "string",
-      "private": true
+      "private": true,
+      "column": {
+        "unique": true
+      }
     },
     "attempt_count": {
       "type": "integer",
@@ -73,6 +79,16 @@
     },
     "expires_at": {
       "type": "datetime"
+    },
+    "lease_token": {
+      "type": "string",
+      "private": true,
+      "maxLength": 36
+    },
+    "workflow_run_id": {
+      "type": "string",
+      "private": true,
+      "maxLength": 120
     },
     "requested_language": {
       "type": "enumeration",
