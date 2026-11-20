@@ -11,5 +11,9 @@ module.exports = {
     { method: 'POST', path: '/longrak/ai/checks', handler: 'api::analysis-session.analysis-session.record', config: { policies: [] } },
     { method: 'POST', path: '/longrak/ai/claim', handler: 'api::analysis-session.analysis-session.claim', config: { policies: [] } },
     { method: 'GET', path: '/longrak/ai/my-checks', handler: 'api::analysis-session.analysis-session.mine', config: { policies: [] } },
+    // website upload flow (LR-W0-01): token needs "Analysis-session → startSession"
+    { method: 'POST', path: '/longrak/ai/sessions', handler: 'api::analysis-session.analysis-session.startSession', config: { policies: [] } },
+    // the session secret is the authorisation (checked in the controller)
+    { method: 'POST', path: '/longrak/ai/sessions/:publicId/files', handler: 'api::analysis-session.analysis-session.uploadFile', config: { auth: false } },
   ],
 };

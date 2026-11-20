@@ -8,6 +8,7 @@
  */
 const createJobService = require('./jobs');
 const createDispatcher = require('./dispatcher');
+const createUploads = require('./uploads');
 const internalRoutes = require('./internal-routes');
 const mockAiRoutes = require('./mock-ai');
 const { isSyntheticMode } = require('./synthetic');
@@ -17,7 +18,7 @@ let instance = null;
 function automation(strapi) {
   if (!instance || instance.strapi !== strapi) {
     const jobs = createJobService(strapi);
-    instance = { strapi, jobs, dispatcher: createDispatcher(strapi, jobs) };
+    instance = { strapi, jobs, uploads: createUploads(strapi), dispatcher: createDispatcher(strapi, jobs) };
   }
   return instance;
 }

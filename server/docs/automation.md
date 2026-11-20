@@ -90,6 +90,35 @@ Envelope (ids only — no file names, text, PII, URLs) with headers `<secret hea
 `STAGE_UNAVAILABLE` so the user does not wait forever. Replay a dead letter by setting the row
 back to `pending` (claims are idempotent).
 
+## Website upload flow (`/ai-check`)
+
+```
+browser ──multipart──▶ Nuxt POST /api/ai-check
+  1. POST /api/longrak/ai/sessions             (website API token)   email + 3 consents → session + secret (once)
+  2. POST /api/longrak/ai/sessions/:id/files   (X-LongRak-Session-Secret, multipart "file") per file
+  3. POST /api/longrak/ai/jobs                 (session secret, Idempotency-Key)            → 202
+◀── 202 { job_public_id }   secret kept in httpOnly cookie lr_ai_jobs (path /api/ai-check, SameSite=Strict)
+browser polls GET /api/ai-check/jobs/:id every 2 s → GET /api/ai-check/jobs/:id/report when completed
+```
+
+- **Upload checks** (`src/automation/uploads.js`): real type from the bytes (PDF/PNG/JPEG), ≤ 15 MB,
+  PDF must parse (pdf-lib) — password-protected or damaged ⇒ rejected — and its page count is
+  recorded; ≤ 3 files per session; rejected files are never stored. The original file name is not stored.
+  **No antivirus scan yet** (`metadata_safe.av_scan: "not_available"`) — required before real
+  customer documents (spec §12).
+- **Storage** (`src/automation/storage.js`): local private disk, `LONGRAK_PRIVATE_STORAGE_DIR`
+  (default `server/.private-storage`, git-ignored; Docker volume `private_storage`). Files 0600,
+  never overwritten, never served. Swap for private object storage in production.
+- **Session TTL**: active retention policy `analysis_results`, else `LONGRAK_AI_SESSION_TTL_HOURS`
+  (default 168 h). Deleting expired files is LR-W0-04 (not built yet).
+- **Quota**: `usage_quota_bucket` = hash of the website's salted IP hash ⇒ `LONGRAK_AI_DAILY_JOB_QUOTA`
+  checks per IP per 24 h (default 3).
+- **Website token** needs *Analysis-session → startSession* in addition to *Lead → submit* and
+  *Analysis-session → record*. Local dev: `npm run token:website -w server` creates it and writes
+  `NUXT_STRAPI_URL`, `NUXT_STRAPI_TOKEN`, `NUXT_IP_HASH_SALT` into `web/.env` (value never printed).
+- **Demo mode**: with `AI_PROVIDER=mock`, uploads are flagged `demo_upload` and the mock AI
+  processes them — the page shows a red "SYNTHETIC test result — not an analysis of your document" banner.
+
 ## Synthetic demo mode: mock AI service + fixtures
 
 **Never with real customer documents.** Enabled only by `AI_PROVIDER=mock`.
@@ -169,9 +198,9 @@ tests run (DB suites show `# SKIP`). CI runs everything against `pgvector/pgvect
 5. **Unique `(session, idempotency_key_hash)`.** Strapi keeps relations in a join table, so it is enforced as a DB-unique `sha256(session_public_id:key)` — same effect.
 6. **Finalize inputs without a home.** `validated_result_ref` and `validation_state` have no ERD column; they're kept only in the job history metadata. Add columns to `analysis_runs` if they must be queryable.
 7. **`unverifiable_claim_count`** is undefined in the spec. Implemented as `present_in_document` findings with `source_quote_verified=false`, and finalize refuses when it is > 0.
-8. **No upload/scan pipeline or session creation exists.** Nothing sets `upload_state=accepted`, `metadata_safe.page_count` or `session_secret_digest` yet, so `POST /jobs` is usable only once that service exists. Meanwhile the live website sends files straight to n8n (`web/server/api/ai-check.post.ts`), which contradicts spec §0/§2 ("n8n carries references, not files").
+8. **Upload pipeline** now exists (website flow above) but with **local disk** storage and **no antivirus scan** — both must change before real customer documents. The website no longer sends files to n8n.
 9. **Envelope `tenant_public_id` / `actor_public_id`** are always `null` in W0 (users-permissions users have no `public_id`).
-10. **Quota bucket.** Spec: "3 anonymous uses per IP risk bucket per day". Nothing fills `usage_quota_bucket` yet ⇒ the quota is per session until it does.
+10. **Quota bucket.** Spec: "3 anonymous uses per IP risk bucket per day". Website sessions use the salted IP hash; sessions created any other way (fixtures) fall back to per-session.
 11. **Consent purpose codes** aren't defined in the ERD; uses `document_rights` + `ai_document_processing` (as the website already records).
 12. **Follow-up events** (`analysis.job.completed` / `.failed`) have no W0 consumer; they are stored but stay `pending` until a route is configured.
 13. **Replay window** (spec §4.2 "timestamp/replay window") is not enforced: the contract has no signed timestamp. Idempotency keys + lease fencing cover duplicates; add HMAC + timestamp at the gateway if needed.

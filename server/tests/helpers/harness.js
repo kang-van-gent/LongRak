@@ -39,6 +39,7 @@ function configureEnv(webhookUrl) {
     LONGRAK_OUTBOX_DISPATCHER: 'false', // tests drive dispatcher.tick() themselves
     LONGRAK_AI_DAILY_JOB_QUOTA: '1000',
     AI_PROVIDER: 'mock',
+    LONGRAK_PRIVATE_STORAGE_DIR: require('node:path').join(require('node:os').tmpdir(), `lr-private-${process.pid}`),
     LONGRAK_AI_SERVICE_TOKEN: AI_TOKEN,
     LONGRAK_PUBLIC_WRITE_LIMIT: '100000',
     LONGRAK_PUBLIC_READ_LIMIT: '100000',

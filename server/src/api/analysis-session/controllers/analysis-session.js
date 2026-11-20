@@ -7,6 +7,8 @@
  *  POST /api/longrak/ai/checks      record    server-to-server (website API token)
  *  POST /api/longrak/ai/claim       claim     signed-in app user (users-permissions JWT)
  *  GET  /api/longrak/ai/my-checks   mine      signed-in app user
+ *  POST /api/longrak/ai/sessions                       startSession  website server (API token)
+ *  POST /api/longrak/ai/sessions/:publicId/files       uploadFile    X-LongRak-Session-Secret (multipart "file")
  *
  * Security rules
  *  - Only an account whose email is CONFIRMED can claim, so nobody can sign up with someone
@@ -16,6 +18,19 @@
  *    SHA-256 are recorded, with upload_state "removed".
  */
 const { createHash } = require('node:crypto');
+const fs = require('node:fs/promises');
+const { automation } = require('../../../automation');
+
+const uploadHits = new Map();
+function uploadLimited(ip) {
+  const max = Number.parseInt(process.env.LONGRAK_PUBLIC_WRITE_LIMIT ?? '', 10) || 30;
+  const now = Date.now();
+  const recent = (uploadHits.get(ip) ?? []).filter((t) => now - t < 10 * 60 * 1000);
+  recent.push(now);
+  uploadHits.set(ip, recent);
+  if (uploadHits.size > 10000) uploadHits.clear();
+  return recent.length > max;
+}
 const { factories } = require('@strapi/strapi');
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -40,6 +55,29 @@ module.exports = factories.createCoreController('api::analysis-session.analysis-
   }
 
   return {
+    /** Website server: start an upload session (email + 3 consents). Returns the secret once. */
+    async startSession(ctx) {
+      const res = await automation(strapi).uploads.startSession(ctx.request.body ?? {});
+      ctx.status = res.status;
+      ctx.body = res.body;
+    },
+
+    /** Upload one file (multipart field "file") into a session, proven by its secret. */
+    async uploadFile(ctx) {
+      const raw = ctx.request.files?.file;
+      const file = Array.isArray(raw) ? raw[0] : raw;
+      try {
+        if (uploadLimited(ctx.request.ip)) { ctx.status = 429; ctx.body = { ok: false, result: 'rate_limited' }; return; }
+        const data = file?.filepath ? await fs.readFile(file.filepath) : null;
+        const res = await automation(strapi).uploads.acceptUpload(ctx.params.publicId, { secret: ctx.get('x-longrak-session-secret') || null }, { data });
+        ctx.status = res.status;
+        ctx.body = res.body;
+      }
+      finally {
+        if (file?.filepath) await fs.rm(file.filepath, { force: true }); // never leave the temp copy behind
+      }
+    },
+
     /** Record one check (called by the website server after n8n answers — or fails). */
     async record(ctx) {
       const b = ctx.request.body ?? {};

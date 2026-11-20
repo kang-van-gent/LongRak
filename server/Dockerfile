@@ -27,6 +27,8 @@ COPY --from=build --chown=node:node /repo/node_modules ./node_modules
 COPY --from=build --chown=node:node /repo/server ./server
 
 WORKDIR /repo/server
+# private document storage (mounted as a volume; must be writable by the node user)
+RUN mkdir -p /repo/server/.private-storage && chown node:node /repo/server/.private-storage && chmod 700 /repo/server/.private-storage
 USER node
 EXPOSE 1337
 CMD ["npm", "run", "start"]

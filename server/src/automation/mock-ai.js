@@ -8,7 +8,8 @@
  *
  *  - Mounted only when AI_PROVIDER=mock; auth `Authorization: Bearer <LONGRAK_AI_SERVICE_TOKEN>`.
  *  - Refuses (403 STAGE_INPUT_REJECTED) any job whose files are not marked
- *    metadata_safe.synthetic = true — i.e. every real upload.
+ *    metadata_safe.synthetic = true (fixtures) or demo_upload = true (uploaded through the website
+ *    while AI_PROVIDER=mock — the report is fake whatever the file contains, and labelled so).
  *  - Behaviour per scenario comes from metadata_safe.synthetic_scenario (see synthetic.js).
  *  - Idempotent by job + input digest + stage version: repeated calls return the same ids and
  *    never duplicate runs, findings or plans.
@@ -46,7 +47,7 @@ module.exports = function mockAiRoutes(strapi, jobs) {
     });
     if (!job) return { error: [404, { error_code: 'STAGE_INPUT_REJECTED', reason: 'job_not_found' }] };
     const metas = job.analysis_inputs.map((i) => (typeof i.file_asset?.metadata_safe === 'string' ? JSON.parse(i.file_asset.metadata_safe) : i.file_asset?.metadata_safe) ?? {});
-    if (!metas.length || metas.some((m) => m.synthetic !== true)) {
+    if (!metas.length || metas.some((m) => m.synthetic !== true && m.demo_upload !== true)) {
       return { error: [403, { error_code: 'STAGE_INPUT_REJECTED', reason: 'not_synthetic' }] };
     }
     const fingerprint = sha256(job.analysis_inputs.map((i) => i.file_asset.sha256).sort().join(':'));
@@ -90,7 +91,8 @@ module.exports = function mockAiRoutes(strapi, jobs) {
           input_fingerprint_sha256: c.fingerprint, total_tokens: 0, estimated_cost_thb: 0,
           result_json_private: {
             schema_version: '1.0', synthetic: true, label: LABEL, analysis_id: c.job.public_id, document_type: 'quotation',
-            document_read_status: 'complete', findings: [], missing_information: [], limitations: [LABEL],
+            document_read_status: 'complete', summary: `${LABEL}. Nothing in your file was read; these findings are fixed test data.`,
+            amounts: {}, findings: [], missing_information: ['[SYNTHETIC] Warranty period'], limitations: [LABEL],
             knowledge_snapshot_id: SNAPSHOT, model_id: 'mock', created_at: new Date().toISOString(),
           },
           analysis_job: connect(c.job),
@@ -136,7 +138,16 @@ module.exports = function mockAiRoutes(strapi, jobs) {
       const result = typeof run.result_json_private === 'string' ? JSON.parse(run.result_json_private) : run.result_json_private;
       await strapi.db.query(RUN_UID).update({
         where: { id: run.id },
-        data: { result_json_private: { ...result, findings: findings.map((f) => ({ id: f.finding_code, dimension: f.dimension, status: f.finding_state, title: f.title })) } },
+        data: {
+          result_json_private: {
+            ...result,
+            findings: findings.map((f) => ({
+              id: f.finding_code, dimension: f.dimension, status: f.finding_state, title: f.title, reason: LABEL,
+              document_evidence: [], knowledge_citations: [], needs_professional_review: f.severity === 'review_required',
+              question_to_ask: '[SYNTHETIC] Example question to ask the other side',
+            })),
+          },
+        },
       });
     }
     const all = await strapi.db.query('api::analysis-finding.analysis-finding').findMany({ where: { analysis_run: { id: run.id } }, select: ['finding_state', 'source_quote_verified'] });

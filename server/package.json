@@ -14,20 +14,21 @@
     "upgrade": "npx @strapi/upgrade latest",
     "upgrade:dry": "npx @strapi/upgrade latest --dry",
     "test": "node --test --test-force-exit --test-concurrency=1 'tests/**/*.test.js'",
-    "fixture": "node scripts/lr-fixture.js"
+    "fixture": "node scripts/lr-fixture.js",
+    "token:website": "node scripts/create-website-token.js"
   },
   "dependencies": {
     "@strapi/database": "5.62.0",
     "@strapi/plugin-cloud": "5.62.0",
     "@strapi/plugin-users-permissions": "5.62.0",
     "@strapi/strapi": "5.62.0",
+    "pdf-lib": "^1.17.1",
     "pg": "8.20.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.30.3",
     "styled-components": "^6.0.0"
   },
-  "devDependencies": {},
   "engines": {
     "node": ">=22.0.0 <=26.x.x",
     "npm": ">=6.0.0"

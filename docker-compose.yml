@@ -36,10 +36,13 @@ services:
       LONGRAK_INTERNAL_SERVICE_TOKEN: ${LONGRAK_INTERNAL_SERVICE_TOKEN:-}
       AI_PROVIDER: ${AI_PROVIDER:-}
       LONGRAK_AI_SERVICE_TOKEN: ${LONGRAK_AI_SERVICE_TOKEN:-}
+      LONGRAK_PRIVATE_STORAGE_DIR: /repo/server/.private-storage
+      LONGRAK_AI_SESSION_TTL_HOURS: ${LONGRAK_AI_SESSION_TTL_HOURS:-}
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
     volumes:
       - uploads:/repo/server/public/uploads
+      - private_storage:/repo/server/.private-storage   # uploaded documents — private, never served
     ports:
       - "${SERVER_PORT:-1337}:1337"
     depends_on:
@@ -54,7 +57,6 @@ services:
     restart: unless-stopped
     environment:
       NUXT_PUBLIC_API_BASE: ${PUBLIC_API_URL:-http://localhost:1337}
-      NUXT_N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-}
       NUXT_N8N_WEBHOOK_SECRET: ${N8N_WEBHOOK_SECRET:-}
       NUXT_N8N_PROJECT_WEBHOOK_URL: ${N8N_PROJECT_WEBHOOK_URL:-}
       NUXT_STRAPI_URL: http://server:1337
@@ -81,3 +83,4 @@ services:
 volumes:
   pgdata:
   uploads:
+  private_storage:

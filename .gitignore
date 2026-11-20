@@ -32,3 +32,6 @@ npm-debug.log*
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# uploaded documents (LR-W0-01 local private storage) — never commit
+server/.private-storage/

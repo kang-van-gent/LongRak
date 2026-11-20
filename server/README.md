@@ -36,6 +36,8 @@ payments and billing (W1–W3) are intentionally not created yet.
 | `POST /api/longrak/ai/checks` | website server (API token) | saves one document check: session (with the email), 3 consents, job, file fingerprints, run, findings, citations, suggested actions |
 | `POST /api/longrak/ai/claim` | signed-in app user (JWT) | links every unclaimed check made with the account's email to the account |
 | `GET /api/longrak/ai/my-checks` | signed-in app user (JWT) | the account's claimed checks with their reports |
+| `POST /api/longrak/ai/sessions` | website server (API token) | start an AI check: email + consents → session + one-time secret |
+| `POST /api/longrak/ai/sessions/:id/files` | session secret | upload one document (checked, stored privately) |
 | `POST /api/longrak/ai/jobs`, `GET …/jobs/:id`, `GET …/jobs/:id/report`, `POST …/jobs/:id/cancel` | job owner (session secret or claiming JWT) | LR-W0-01 async analysis jobs — see [docs/automation.md](docs/automation.md) |
 | `POST /internal/automation/*` | n8n only (`LONGRAK_INTERNAL_SERVICE_TOKEN`) | event/job claim, transition, finalize, fail, finish, incidents — outside `/api` |
 
@@ -46,7 +48,8 @@ other records (e.g. KB sources, evaluation runs) should use its own API token wi
 
 1. Start Strapi and create the admin user.
 2. **Website token:** Settings → API Tokens → Create → type **Custom**, duration unlimited, permissions:
-   *Lead → submit* and *Analysis-session → record* — nothing else. Put it in the root `.env` as
+   *Lead → submit*, *Analysis-session → record* and *Analysis-session → startSession* — nothing else.
+   (Local dev: `npm run token:website -w server` does this and writes it into `web/.env`.) Put it in the root `.env` as
    `STRAPI_WEBSITE_TOKEN` (the web container gets it as `NUXT_STRAPI_TOKEN`).
 3. **Email confirmation (required before the app goes live):** Settings → Users & Permissions → Advanced →
    *Enable email confirmation*, and configure an email provider. `claim` refuses unconfirmed accounts, so nobody
